@@ -241,31 +241,31 @@ const createBaseRomajiMap = () => {
     // 漢字については将来的にすべてkanaに変換する方針とする。
     // 記号については必要に応じて追加する。
     
-    // const lawSpecificEntries = [
-    //     ['一', ['ichi']],
-    //     ['二', ['ni']],
-    //     ['三', ['san']],
-    //     ['四', ['shi', 'yon']],
-    //     ['五', ['go']],
-    //     ['六', ['roku']],
-    //     ['七', ['nana', 'shichi']],
-    //     ['八', ['hachi']],
-    //     ['九', ['kyu', 'ku']],
-    //     ['十', ['ju', 'juu']],
-    //     ['百', ['hyaku']],
-    //     ['千', ['sen']],
-    //     ['万', ['man']],
-    //     ['億', ['oku']],
-    //     ['〇', ['rei', 'zero']],
-    //     ['第', ['dai']],
-    //     ['章', ['shou']],
-    //     ['節', ['setsu']],
-    //     ['款', ['kan']],
-    //     ['項', ['kou']],
-    //     ['号', ['gou']],
-    //     ['条', ['jou']],
-    // ];
-    // lawSpecificEntries.forEach(([symbol, variants]) => addEntry(symbol, variants));
+    const lawSpecificEntries = [
+        ['一', ['ichi']],
+        ['二', ['ni']],
+        ['三', ['san']],
+        ['四', ['shi', 'yon']],
+        ['五', ['go']],
+        ['六', ['roku']],
+        ['七', ['nana', 'shichi']],
+        ['八', ['hachi']],
+        ['九', ['kyu', 'ku']],
+        ['十', ['ju', 'juu']],
+        ['百', ['hyaku']],
+        ['千', ['sen']],
+        ['万', ['man']],
+        ['億', ['oku']],
+        ['〇', ['rei', 'zero']],
+        ['第', ['dai']],
+        ['章', ['shou']],
+        ['節', ['setsu']],
+        ['款', ['kan']],
+        ['項', ['kou']],
+        ['号', ['gou']],
+        ['条', ['jou']],
+    ];
+    lawSpecificEntries.forEach(([symbol, variants]) => addEntry(symbol, variants));
 
     return map;
 };
