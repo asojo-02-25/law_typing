@@ -1,8 +1,8 @@
 export const typingQuestions = [
     {
-        text: 'テスト',
-        romaji: 'tesuto',
-        kana: 'てすと',
+        text: 'テスト、テスト',
+        romaji: 'tesuto, tesuto',
+        kana: 'てすと、てすと',
         field: 'テスト分野',
         source: 'テスト出典',
     },
