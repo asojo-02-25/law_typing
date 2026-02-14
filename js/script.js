@@ -24,7 +24,7 @@ let resultTimer1 = null;        // 結果画面タイマー1
 let resultTimer2 = null;        // 結果画面タイマー2
 const typingState = {
     units: [],           // パース済みかなユニット
-    currentUnitIdx: 0,   // 現在注目しているユニット
+    currentUnitIdx: 0,   // 現在注目しているユニットのインデックス
     typedBuffer: '',     // 現ユニットの入力済みローマ字
     candidates: [],      // 現ユニットで生き残っている候補
     isLocked: false,     // 候補が一意に決まったら true
