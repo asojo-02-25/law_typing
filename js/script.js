@@ -620,6 +620,12 @@ const getSoftKeyChar = (element) => {
 
 const handleInput = (char, source = 'physical') => {
     if (!isGameActive) return;
+
+    // ゲーム開始直後の誤入力を防ぐ (500ms)
+    if (Date.now() - gameStartTime < 500) {
+        return;
+    }
+    
     if (!char || typingState.candidates.length === 0) {
         return;
     }
