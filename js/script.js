@@ -27,7 +27,10 @@ const typingState = {
     currentUnitIdx: 0,   // 現在注目しているユニットのインデックス
     typedBuffer: '',     // 現ユニットの入力済みローマ字
     candidates: [],      // 現ユニットで生き残っている候補
-    isLocked: false,     // 候補が一意に決まったら true
+    // 'open'    = 複数候補あり（未確定）
+    // 'locked'  = 候補が1つに確定
+    // 'pending' = 短い候補で一致済みだが長い候補も残っている（保留）
+    resolution: 'open',
 };
 
 const typingLogger = {
@@ -61,7 +64,7 @@ const resetTypingState = () => {
     typingState.currentUnitIdx = 0;
     typingState.typedBuffer = '';
     typingState.candidates = [];
-    typingState.isLocked = false;
+    typingState.resolution = 'open';
 };
 
 const initializeTypingState = (units = []) => {
@@ -69,7 +72,7 @@ const initializeTypingState = (units = []) => {
     typingState.units = [...units];
     if (typingState.units.length > 0) {
         typingState.candidates = getRomajiCandidatesForUnit(typingState.units[0]);
-        typingState.isLocked = typingState.candidates.length === 1;
+        typingState.resolution = typingState.candidates.length === 1 ? 'locked' : 'open';
     }
 };
 
@@ -81,6 +84,18 @@ const getNextKeyOptions = () => {
         const nextChar = candidate[idx];
         if (nextChar) options.add(nextChar);
     });
+
+    // 保留中は次のユニットの先頭文字もハイライト対象に含める
+    if (typingState.resolution === 'pending') {
+        const nextUnit = typingState.units[typingState.currentUnitIdx + 1];
+        if (nextUnit) {
+            const nextCandidates = getRomajiCandidatesForUnit(nextUnit);
+            nextCandidates.forEach((c) => {
+                if (c[0]) options.add(c[0]);
+            });
+        }
+    }
+
     return Array.from(options);
 };
 
@@ -167,6 +182,7 @@ const recordMissedKeyExpectation = () => {
 const finalizeCurrentUnit = () => {
     const completedValue = typingState.typedBuffer;
     chunkCommittedRomaji += completedValue;
+    typingState.resolution = 'open';
     typingLogger.info('InputEngine', 'unit completed', {
         unit: typingState.units[typingState.currentUnitIdx],
         value: completedValue,
@@ -177,14 +193,14 @@ const finalizeCurrentUnit = () => {
     const nextUnit = typingState.units[typingState.currentUnitIdx];
     if (!nextUnit) {
         typingState.candidates = [];
-        typingState.isLocked = false;
+        typingState.resolution = 'open';
         updateKeyboardHighlights();
         nextQuestion();
         return false;
     }
 
     typingState.candidates = getRomajiCandidatesForUnit(nextUnit);
-    typingState.isLocked = typingState.candidates.length === 1;
+    typingState.resolution = typingState.candidates.length === 1 ? 'locked' : 'open';
     updateChunkIndexFromState();
     updateKeyboardHighlights();
     return true;
@@ -618,6 +634,82 @@ const getSoftKeyChar = (element) => {
     return '';
 };
 
+// ============================================================
+// 保留状態の解決（「ん」の 'n' / 'nn' 表記ゆれ対応）
+// 短い候補（'n'）で一致済みだが長い候補（'nn'）も残っている場合に、
+// 次のキー入力を見てどちらで確定するかを判定する。
+// ============================================================
+const resolvePendingCompletion = (normalizedChar, originalChar, source) => {
+    typingState.resolution = 'open';
+
+    // 次のユニットの候補先頭文字と一致するか確認
+    const nextUnit = typingState.units[typingState.currentUnitIdx + 1];
+    let charStartsNextUnit = false;
+    if (nextUnit) {
+        const nextCandidates = getRomajiCandidatesForUnit(nextUnit);
+        charStartsNextUnit = nextCandidates.some((c) => c.startsWith(normalizedChar));
+    }
+
+    // 現在のバッファを延長できるか確認
+    const tentativeBuffer = typingState.typedBuffer + normalizedChar;
+    const extendedCandidates = typingState.candidates.filter((c) => c.startsWith(tentativeBuffer));
+    const canExtend = extendedCandidates.length > 0;
+
+    // 優先順位: 次のユニットに進めるなら確定して次へ
+    if (charStartsNextUnit) {
+        typingLogger.debug('InputEngine', 'pending resolved → next unit', {
+            finalized: typingState.typedBuffer,
+            nextChar: normalizedChar,
+        });
+        const staysOnCurrentQuestion = finalizeCurrentUnit();
+        if (!staysOnCurrentQuestion) return;
+        // 今回のキーを次のユニットに対して再処理
+        handleInput(originalChar, source);
+        return;
+    }
+
+    // 延長可能ならバッファを伸ばす
+    if (canExtend) {
+        typingState.typedBuffer = tentativeBuffer;
+        typingState.candidates = extendedCandidates;
+        typingState.resolution = extendedCandidates.length === 1 ? 'locked' : 'open';
+        correctKeyCount++;
+
+        typingLogger.debug('InputEngine', 'pending resolved → extended', {
+            buffer: typingState.typedBuffer,
+            candidates: typingState.candidates,
+        });
+
+        const isComplete = extendedCandidates.some((c) => c === tentativeBuffer);
+        const hasLonger = extendedCandidates.some((c) => c.length > tentativeBuffer.length);
+
+        if (isComplete && !hasLonger) {
+            const staysOnCurrentQuestion = finalizeCurrentUnit();
+            if (staysOnCurrentQuestion) updateQuestionDisplay();
+            return;
+        }
+        if (isComplete && hasLonger && typingState.units[typingState.currentUnitIdx + 1]) {
+            typingState.resolution = 'pending';
+        }
+
+        updateKeyboardHighlights();
+        updateQuestionDisplay();
+        return;
+    }
+
+    // どちらにも該当しない → 現在のユニットを確定し、次のユニットでミス扱い
+    typingLogger.warn('InputEngine', 'pending resolved → miss for next unit', {
+        source,
+        attempted: normalizedChar,
+    });
+    const staysOnCurrentQuestion = finalizeCurrentUnit();
+    if (!staysOnCurrentQuestion) return;
+    missedKeyCount++;
+    recordMissedKeyExpectation();
+    highlightMissedKey(normalizedChar);
+    updateQuestionDisplay();
+};
+
 const handleInput = (char, source = 'physical') => {
     if (!isGameActive) return;
 
@@ -632,6 +724,12 @@ const handleInput = (char, source = 'physical') => {
 
     const normalizedChar = normalizeInputChar(char);
     if (!normalizedChar || normalizedChar.length !== 1) return;
+
+    // 保留状態が存在する場合は先に解決する
+    if (typingState.resolution === 'pending') {
+        resolvePendingCompletion(normalizedChar, char, source);
+        return;
+    }
 
     const tentativeBuffer = typingState.typedBuffer + normalizedChar;
     const survivingCandidates = typingState.candidates.filter((candidate) => candidate.startsWith(tentativeBuffer));
@@ -652,7 +750,7 @@ const handleInput = (char, source = 'physical') => {
 
     typingState.typedBuffer = tentativeBuffer;
     typingState.candidates = survivingCandidates;
-    typingState.isLocked = survivingCandidates.length === 1;
+    typingState.resolution = survivingCandidates.length === 1 ? 'locked' : 'open';
     correctKeyCount++;
 
     typingLogger.debug('InputEngine', 'buffer advanced', {
@@ -663,6 +761,21 @@ const handleInput = (char, source = 'physical') => {
 
     const isUnitComplete = survivingCandidates.some((candidate) => candidate === typingState.typedBuffer);
     if (isUnitComplete) {
+        // 短い候補で一致したが、より長い候補も残っている場合は確定を保留
+        const hasLongerCandidates = survivingCandidates.some(
+            (c) => c.length > typingState.typedBuffer.length
+        );
+        if (hasLongerCandidates && typingState.units[typingState.currentUnitIdx + 1]) {
+            typingState.resolution = 'pending';
+            typingLogger.debug('InputEngine', 'completion deferred', {
+                buffer: typingState.typedBuffer,
+                candidates: survivingCandidates,
+            });
+            updateKeyboardHighlights();
+            updateQuestionDisplay();
+            return;
+        }
+
         const staysOnCurrentQuestion = finalizeCurrentUnit();
         if (staysOnCurrentQuestion) {
             updateQuestionDisplay();
