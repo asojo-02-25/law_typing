@@ -194,16 +194,19 @@ const recordMissedKeyExpectation = () => {
 };
 
 const finalizeCurrentUnit = () => {
+    // typedBufferを保存
     const completedValue = typingState.typedBuffer;
+    // 現在の文節にtypedBufferを保存したものを追加してchunkCommittedRomajiを更新
     chunkCommittedRomaji += completedValue;
-    typingState.resolution = 'open';
-    typingState.deferredShortPath = null;
+    // 状態の更新
+    typingState.resolution = 'open';        //　候補が複数存在する状態に初期化
+    typingState.deferredShortPath = null;   // 保留していた短縮形代替パスをクリア
     typingLogger.info('InputEngine', 'unit completed', {
         unit: typingState.units[typingState.currentUnitIdx],
         value: completedValue,
     });
-    typingState.currentUnitIdx += 1;
-    typingState.typedBuffer = '';
+    typingState.currentUnitIdx += 1;        // 次のユニットに進む
+    typingState.typedBuffer = '';           // typedBufferをリセット
 
     const nextUnit = typingState.units[typingState.currentUnitIdx];
     if (!nextUnit) {
@@ -659,15 +662,20 @@ const resolvePendingCompletion = (normalizedChar, originalChar) => {
 
     // 現在のバッファを延長できるか確認
     // tentative : 仮の
+    // tentativeBuffer : 現在の入力済みバッファ + 今回の入力文字
     const tentativeBuffer = typingState.typedBuffer + normalizedChar;
+    // extendedCandidates : 現在の候補のうち、tentativeBufferで始まるものを抽出した配列
     const extendedCandidates = typingState.candidates.filter((c) => c.startsWith(tentativeBuffer));
+    // canExtend : extendedCandidatesに要素が1つ以上あるか
     const canExtend = extendedCandidates.length > 0;
 
     // ─── 遅延ショートパスの解決 ───
     // 前回、延長(nn)と次ユニット開始(n→な)の両方が可能だったため延長しつつ
     // 短縮形の代替を保存していた。今回の文字で最終決定する。
+    // 前回入力時にsavedShortPathを保存していた場合、今回の入力によってどちらの解釈が正しいか判断
     if (savedShortPath) {
         // 今回の文字が次ユニットを新たに開始できる → 延長形(nn)で確定
+        // 例: buffer='nn'(ん), savedShortPath='n'(ん)+overflow'n'(な開始), currentChar='n' → 延長確定
         if (charStartsNextUnit) {
             typingLogger.debug('InputEngine', 'deferred → extended form', {
                 finalized: typingState.typedBuffer,
@@ -686,8 +694,12 @@ const resolvePendingCompletion = (normalizedChar, originalChar) => {
         });
         correctKeyCount--; // 曖昧延長時のカウントを取り消し
         typingState.typedBuffer = savedShortPath.shortBuffer;
+        // finalizeCurrentUnit() の出力はtrue(nextUnit存在時) / false(nixtUnitなし→問題文の1チャンク終了)
         const staysOnCurrentQuestion = finalizeCurrentUnit();
+        // finalizedCurrentUnit()で次ユニットが存在しない場合は問題文のチャンクが終了しているため、次の入力を処理せずにreturnする
+        // if(true) → return
         if (!staysOnCurrentQuestion) return;
+        // overflowChar + currentChar を再処理 → 例えば buffer='nn'(ん), savedShortPath='n'(ん)+overflow'n'(な開始), currentChar='a' → 'na'で次ユニット開始の解釈で再処理
         handleInput(savedShortPath.overflowChar);
         handleInput(originalChar);
         return;
