@@ -209,6 +209,7 @@ const finalizeCurrentUnit = () => {
     typingState.typedBuffer = '';           // typedBufferをリセット
 
     const nextUnit = typingState.units[typingState.currentUnitIdx];
+    // 次のユニットが存在しない場合は次の問題へ移動し、falseを返す
     if (!nextUnit) {
         typingState.candidates = [];
         typingState.resolution = 'open';
@@ -217,6 +218,7 @@ const finalizeCurrentUnit = () => {
         return false;
     }
 
+    // 次のユニットが存在する場合は状態を更新し次のユニットへ移動し、trueを返す
     typingState.candidates = getRomajiCandidatesForUnit(nextUnit);
     typingState.resolution = typingState.candidates.length === 1 ? 'locked' : 'open';
     updateChunkIndexFromState();
@@ -751,6 +753,7 @@ const resolvePendingCompletion = (normalizedChar, originalChar) => {
     }
 
     // ─── 延長のみ可能 ───
+    // ex) buffer='n'(ん), currentChar='n', tentativeBuffer='nn', extendedCandidates=['nn'], nextUnitの候補先頭文字がn以外 → canExtend=false
     if (canExtend) {
         typingState.typedBuffer = tentativeBuffer;
         typingState.candidates = extendedCandidates;
@@ -765,11 +768,13 @@ const resolvePendingCompletion = (normalizedChar, originalChar) => {
         const isComplete = extendedCandidates.some((c) => c === tentativeBuffer);
         const hasLonger = extendedCandidates.some((c) => c.length > tentativeBuffer.length);
 
+        // 延長形で完全一致かつこれ以上長い候補が存在しない場合は確定
         if (isComplete && !hasLonger) {
             const staysOnCurrentQuestion = finalizeCurrentUnit();
             if (staysOnCurrentQuestion) updateQuestionDisplay();
             return;
         }
+        // 延長形で完全一致したが、より長い候補が残っている場合は確定を保留 次の入力で確定させる
         if (isComplete && hasLonger && typingState.units[typingState.currentUnitIdx + 1]) {
             typingState.resolution = 'pending';
         }
@@ -780,6 +785,7 @@ const resolvePendingCompletion = (normalizedChar, originalChar) => {
     }
 
     // ─── 次ユニット開始のみ可能 ───
+    // ex) buffer='ka', currentChar='t', tentativeBuffer='kat', extendedCandidates=[t]
     if (charStartsNextUnit) {
         typingLogger.debug('InputEngine', 'pending resolved → next unit', {
             finalized: typingState.typedBuffer,
@@ -795,6 +801,7 @@ const resolvePendingCompletion = (normalizedChar, originalChar) => {
     typingLogger.warn('InputEngine', 'pending resolved → miss for next unit', {
         attempted: normalizedChar,
     });
+    // finalizeCurrentUnit() : 次ユニットが存在すればtrue、存在しなければfalseを返す
     const staysOnCurrentQuestion = finalizeCurrentUnit();
     if (!staysOnCurrentQuestion) return;
     missedKeyCount++;
