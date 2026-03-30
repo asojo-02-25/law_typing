@@ -533,13 +533,6 @@ const resetGameScreenVisualState = (prepareForStart = false) => {
         screen.getAnimations().forEach((animation) => {
             animation.cancel();
         });
-        if (prepareForStart) {
-            screen.style.opacity = '0';
-            screen.style.transform = 'scale(0)';
-        } else {
-            screen.style.opacity = '';
-            screen.style.transform = '';
-        }
     });
 
     questionArea.getAnimations().forEach((animation) => {
@@ -574,6 +567,17 @@ const resetGameScreenVisualState = (prepareForStart = false) => {
             animation.cancel();
         });
         item.style.opacity = '';
+    });
+
+    // question/answer は delayScreens に含まれるため、最後に初期表示状態をまとめて適用する
+    delayScreens.forEach((screen) => {
+        if (prepareForStart) {
+            screen.style.opacity = '0';
+            screen.style.transform = 'scale(0)';
+        } else {
+            screen.style.opacity = '';
+            screen.style.transform = '';
+        }
     });
 };
 
