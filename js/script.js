@@ -24,6 +24,20 @@ let resultTimer1 = null;        // 結果画面タイマー1
 let resultTimer2 = null;        // 結果画面タイマー2
 let resultTransitionToken = 0;  // 結果遷移の世代トークン
 const trackedUiAnimations = new Set(); // 明示的に追跡するUIアニメーション
+let trackedAnimationSequence = 0;
+const trackedAnimationMeta = new WeakMap();
+
+const animationTrackerLogger = {
+    enabled: true,
+    log(event, payload = {}) {
+        if (!this.enabled) return;
+        console.debug(`[AnimationTracker] ${event}`, payload);
+    },
+    warn(event, payload = {}) {
+        if (!this.enabled) return;
+        console.warn(`[AnimationTracker] ${event}`, payload);
+    },
+};
 const typingState = {
     units: [],           // パース済みかなユニット
     currentUnitIdx: 0,   // 現在注目しているユニットのインデックス
@@ -529,29 +543,104 @@ const saveToLocalStorage = (data) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
 };
 
-const trackAnimation = (animation) => {
+const trackAnimation = (animation, label = 'anonymous') => {
     if (!animation) return null;
+
+    const id = ++trackedAnimationSequence;
+    trackedAnimationMeta.set(animation, {
+        id,
+        label,
+        startedAt: performance.now(),
+    });
+
     trackedUiAnimations.add(animation);
+    animationTrackerLogger.log('tracked', {
+        id,
+        label,
+        activeCount: trackedUiAnimations.size,
+    });
+
     animation.finished
         .then(() => {
             trackedUiAnimations.delete(animation);
+            animationTrackerLogger.log('finished', {
+                id,
+                label,
+                activeCount: trackedUiAnimations.size,
+            });
         })
-        .catch(() => {
+        .catch((error) => {
             trackedUiAnimations.delete(animation);
+            animationTrackerLogger.log('ended-with-error', {
+                id,
+                label,
+                reason: error?.name || 'unknown',
+                activeCount: trackedUiAnimations.size,
+            });
         });
+
     return animation;
 };
 
 const cancelTrackedUiAnimations = () => {
+    animationTrackerLogger.log('cancel-batch-start', {
+        activeCount: trackedUiAnimations.size,
+    });
+
     trackedUiAnimations.forEach((animation) => {
+        const meta = trackedAnimationMeta.get(animation) || {};
         try {
             animation.cancel();
+            animationTrackerLogger.log('cancel-requested', {
+                id: meta.id || 'unknown',
+                label: meta.label || 'unknown',
+            });
         } catch (e) {
-            console.warn('animation cancel failed', e);
+            animationTrackerLogger.warn('cancel-failed', {
+                id: meta.id || 'unknown',
+                label: meta.label || 'unknown',
+                reason: e?.message || e,
+            });
         }
     });
+
     trackedUiAnimations.clear();
+    animationTrackerLogger.log('cancel-batch-cleared', {
+        activeCount: trackedUiAnimations.size,
+    });
 };
+
+const dumpTrackedUiAnimations = () => {
+    const rows = [];
+    trackedUiAnimations.forEach((animation) => {
+        const meta = trackedAnimationMeta.get(animation) || {};
+        rows.push({
+            id: meta.id || 'unknown',
+            label: meta.label || 'unknown',
+            playState: animation.playState,
+            pending: animation.pending,
+            currentTime: animation.currentTime,
+        });
+    });
+
+    animationTrackerLogger.log('snapshot', { activeCount: rows.length });
+    if (rows.length > 0) {
+        console.table(rows);
+    } else {
+        console.debug('[AnimationTracker] no active tracked animations');
+    }
+    return rows;
+};
+
+if (typeof window !== 'undefined') {
+    window.lawTypeAnimationDebug = {
+        dumpTrackedUiAnimations,
+        setEnabled(enabled) {
+            animationTrackerLogger.enabled = !!enabled;
+            console.info(`[AnimationTracker] logging ${animationTrackerLogger.enabled ? 'enabled' : 'disabled'}`);
+        },
+    };
+}
 
 const invalidateResultTransitions = () => {
     resultTransitionToken += 1;
@@ -698,7 +787,7 @@ const startGame = (config) => {
     };
 
     for(const screen of delayScreens){
-        trackAnimation(screen.animate(keyframes, options));
+        trackAnimation(screen.animate(keyframes, options), `start-delay:${screen.id || 'delay-screen'}`);
     }
 };
 
@@ -1280,7 +1369,7 @@ const showResults = (data) => {
             duration: 400,
             fill: 'forwards',
             transformOrigin: 'top',
-        }));
+        }), 'result:question-area');
 
         trackAnimation(answerArea.animate([
             {height: '8rem'},
@@ -1289,9 +1378,9 @@ const showResults = (data) => {
             duration: 400,
             fill: 'forwards',
             transformOrigin: 'bottom',
-        }));
+        }), 'result:answer-area');
 
-        keys.forEach((key) => {
+        keys.forEach((key, index) => {
             trackAnimation(key.animate([
                 {opacity: 1, offset: 0},
                 {opacity: 0.8, offset: 0.5},
@@ -1299,7 +1388,7 @@ const showResults = (data) => {
             ],{
                 duration: 400,
                 fill: 'forwards',
-            }));
+            }), `result:key:${key.id || index}`);
         });
 
         trackAnimation(inputElement.animate([
@@ -1308,7 +1397,7 @@ const showResults = (data) => {
         ],{
             duration: 200,
             fill: 'forwards',
-        }));
+        }), 'result:input');
 
         resultTimer1 = null;
     }, 1000)
@@ -1329,7 +1418,7 @@ const showResults = (data) => {
         const history = getStoredHistory();
         displaySideStats(history);
 
-        statItems.forEach((item) => {
+        statItems.forEach((item, index) => {
             trackAnimation(item.animate([
                 {opacity: 0},
                 {opacity: 1},
@@ -1337,7 +1426,7 @@ const showResults = (data) => {
                 duration: 500,
                 fill: 'forwards',
                 easing: 'ease-in-out',
-            }));
+            }), `result:stat:${item.id || index}`);
         });
 
         resultTimer2 = null;
