@@ -7,6 +7,7 @@
     --main-color: #2777f7;
     --accent-color: #a855f7;
     --accent-color-2: #8d8d94;
+    --accent-color-3: #334155;
     --font-gray: #5c5e64;
     --font-black: #1f2937;
     --font-white: #ffffff;
@@ -360,6 +361,8 @@ hr{
         border-radius: 12px;
         display: flex;
         flex-direction: column;
+        position: relative;
+        z-index: 1;
     }
 
     .result-graph-wrapper{
@@ -379,6 +382,10 @@ hr{
         height: 7.75rem;
         width: 37.5rem;
         border-radius: 12px;
+        position: relative;
+        overflow: visible;
+        isolation: isolate;
+        z-index: 4;
     }
 
     .result-guide{
@@ -391,6 +398,13 @@ hr{
 
     .stat-item{
         opacity: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-item:hover,
+    .stat-item:focus-within{
+        z-index: 20;
     }
 
     .stat-item.upper{
@@ -400,6 +414,61 @@ hr{
 
     .stat-item.lower{
         grid-column: span 3;
+    }
+
+    .stat-label-with-help{
+        position: relative;
+        display: inline-block;
+        padding-left: 1rem;
+    }
+
+    .stat-help-anchor{
+        position: absolute;
+        top: -0.2rem;
+        left: 0;
+        width: .75rem;
+        height: .75rem;
+        border: 1px solid var(--main-color);
+        border-radius: 50%;
+        background-color: var(--base-color-2);
+        color: var(--main-color);
+        font-size: .5rem;
+        font-weight: bold;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        z-index : 30;
+    }
+
+
+    .stat-help-anchor::after{
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: calc(100% + .5rem);
+        left: 0;
+        width: 20rem;
+        padding: .45rem .6rem;
+        border-radius: 8px;
+        background-color: var(--accent-color-3);
+        color: var(--font-white);
+        font-size: .72rem;
+        line-height: 1.5;
+        letter-spacing: .01em;
+        box-shadow: 0 0.4rem 1.2rem rgba(0,0,0,0.18);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity .2s ease;
+        z-index: 12;
+        white-space: normal;
+    }
+
+    .stat-help-anchor:hover::before,
+    .stat-help-anchor:hover::after{
+        opacity: 1;
+        visibility: visible;
     }
 
     /*ゲーム中の画面切り替え*/

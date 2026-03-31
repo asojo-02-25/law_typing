@@ -157,11 +157,41 @@
                     </div>
                     <div class="result-data-area">
                         <!-- 数値データ（元keyboard-container相当） -->
-                        <p class="stat-item upper font-middle">スピード : <span id="stat-wpm" class="font-bold font-black"></span></p>
-                        <p class="stat-item upper font-middle">正タイプ率 : <span id="stat-accuracy" class="font-bold font-black"></span></p>
-                        <p class="stat-item upper font-middle">苦手キー : <span id="stat-weak-keys" class="font-bold font-black"></span></p>
-                        <p class="stat-item lower font-middle">1週間前の平均スピード : <span id="stat-recent-wpm-avg" class="font-bold font-black"></span>&ensp;<span id="stat-wpm-recent-change" class="font-bold font-black"></span></p>
-                        <p class="stat-item lower font-middle">1か月前の平均スピード : <span id="stat-initial-wpm-avg" class="font-bold font-black"></span>&ensp;<span id="stat-wpm-initial-change" class="font-bold font-black"></span></p>
+                        <p class="stat-item upper font-middle">
+                            <span class="stat-label-with-help">
+                                <span class="stat-help-anchor" data-tooltip="スピード = 正解タイプ数 ÷ プレイ時間(秒)。小数第3位を四捨五入して小数第2位まで表示。" aria-label="スピードの計算方法">?</span>
+                                スピード :
+                            </span>
+                            <span id="stat-wpm" class="font-bold font-black"></span>
+                        </p>
+                        <p class="stat-item upper font-middle">
+                            <span class="stat-label-with-help">
+                                <span class="stat-help-anchor" data-tooltip="正タイプ率 = 正解タイプ数 ÷ (正解タイプ数 + ミスタイプ数) × 100。入力が0回の場合は100.0%を表示。" aria-label="正タイプ率の計算方法">?</span>
+                                正タイプ率 :
+                            </span>
+                            <span id="stat-accuracy" class="font-bold font-black"></span>
+                        </p>
+                        <p class="stat-item upper font-middle">
+                            <span class="stat-label-with-help">
+                                <span class="stat-help-anchor stat-help-right" data-tooltip="プレイ中に最もミスタイプが多かったキーを表示。同数のキーはカンマ区切りで表示し、ミスがない場合は「特になし」。" aria-label="苦手キーの計算方法">?</span>
+                                苦手キー :
+                            </span>
+                            <span id="stat-weak-keys" class="font-bold font-black"></span>
+                        </p>
+                        <p class="stat-item lower font-middle">
+                            <span class="stat-label-with-help">
+                                <span class="stat-help-anchor" data-tooltip="保存されたプレイ履歴のうち、7日前から14日前までのスピード(keys/秒)の平均。該当履歴がない場合は0.00。また右側に今回のプレイデータとの変化率を表示。" aria-label="1週間前の平均スピードの計算方法">?</span>
+                                1週間前の平均スピード :
+                            </span>
+                            <span id="stat-recent-wpm-avg" class="font-bold font-black"></span>&ensp;<span id="stat-wpm-recent-change" class="font-bold font-black"></span>
+                        </p>
+                        <p class="stat-item lower font-middle">
+                            <span class="stat-label-with-help">
+                                <span class="stat-help-anchor" data-tooltip="保存されたプレイ履歴のうち、30日前から60日前までのスピード(keys/秒)の平均。該当履歴がない場合は0.00。また右側に今回のプレイデータとの変化率を表示。" aria-label="1か月前の平均スピードの計算方法">?</span>
+                                1か月前の平均スピード :
+                            </span>
+                            <span id="stat-initial-wpm-avg" class="font-bold font-black"></span>&ensp;<span id="stat-wpm-initial-change" class="font-bold font-black"></span>
+                        </p>
                     </div>
                 </section> 
 
