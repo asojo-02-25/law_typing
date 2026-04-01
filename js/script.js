@@ -1589,11 +1589,19 @@ document.addEventListener('keydown', (event) => {
 
 
 // --- ヘッダーのリンク処理 ---
+const prepareNavigationFromGame = () => {
+    if (isGameActive || currentScreen === SCREEN.GAME) {
+        resetGame();
+    }
+};
+
 const navActions = {
     'nav-home-link': () => {
+        prepareNavigationFromGame();
         setVisibleScreen(SCREEN.START);
     },
     'nav-results-link': () => {
+        prepareNavigationFromGame();
         setVisibleScreen(SCREEN.RESULTS);
         drawResultChart();
         // 最新履歴で数値表示
@@ -1612,7 +1620,6 @@ document.querySelector('.nav').addEventListener('click', (event) => {
     if(!link) return;
 
     event.preventDefault();
-    if(isGameActive) return;
 
     const action = navActions[link.className];
     if(action) action();
