@@ -44,6 +44,11 @@ a{
     text-decoration: none;
 }
 
+.nav-flex a:hover span,
+.footer-flex a:hover span {
+    font-weight: bold;
+}
+
 .font-small{
     font-size: 0.75rem;
 }
