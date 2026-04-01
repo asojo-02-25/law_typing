@@ -532,14 +532,47 @@ article{
 footer{
     background-color: var(--base-color-2);
     padding: 8px 0 8px 0;
-    height: 16vh;
 }
 
 .footer-flex{
     display: flex;
     justify-content: center;
-    gap: 6px;
-    margin: .5rem 0 0 0;
+    gap: 1rem;
+    margin : .5rem 0 .5rem 0;
+}
+
+/* 各種SNSリンク */
+.footer-icon-flex{
+    display: flex;
+    justify-content: center;
+    gap: .125rem;
+}
+
+.social-link{
+    display: inline-flex;
+    position: relative;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    color: var(--font-gray);
+    transition: color .2s ease, background-color .2s ease;
+}
+
+.social-link:hover{
+    color: var(--main-color);
+    background-color: var(--base-color);
+}
+
+.social-icon{
+    width: 1.3rem;
+    height: 1.3rem;
+    fill: currentColor;
+    display: block;
+    overflow: visible;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* プライバシーポリシー */
