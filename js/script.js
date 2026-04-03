@@ -358,11 +358,77 @@ window.addEventListener('load', () => {
 
 const STORAGE_KEY = 'law_type_play_data';
 
+const MIN_VALID_KEYS_PER_SEC = 2;
+const MIN_VALID_ACCURACY = 70;
+
+const toFiniteNumber = (value) => {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+};
+
+const isValidResultRecord = (record) => {
+    if (!record || typeof record !== 'object') {
+        return false;
+    }
+
+    const wpm = toFiniteNumber(record.wpm);
+    const accuracy = toFiniteNumber(record.accuracy);
+    if (wpm === null || accuracy === null) {
+        return false;
+    }
+
+    return wpm >= MIN_VALID_KEYS_PER_SEC && accuracy >= MIN_VALID_ACCURACY;
+};
+
+const normalizeResultRecord = (record) => {
+    if (!record || typeof record !== 'object') {
+        return null;
+    }
+
+    const wpm = toFiniteNumber(record.wpm);
+    const accuracy = toFiniteNumber(record.accuracy);
+    const dateMs = new Date(record.date).getTime();
+    if (wpm === null || accuracy === null || !Number.isFinite(dateMs)) {
+        return null;
+    }
+
+    const missCount = toFiniteNumber(record.missCount);
+    const duration = toFiniteNumber(record.duration);
+
+    return {
+        date: new Date(dateMs).toISOString(),
+        wpm,
+        missCount: missCount === null ? 0 : missCount,
+        accuracy,
+        weakKey: typeof record.weakKey === 'string' && record.weakKey.length > 0 ? record.weakKey : '特になし',
+        duration: duration === null ? 0 : duration,
+    };
+};
+
+const sanitizeHistoryRecords = (history) => {
+    if (!Array.isArray(history)) {
+        return [];
+    }
+
+    return history
+        .map(normalizeResultRecord)
+        .filter((record) => record && isValidResultRecord(record));
+};
+
 const getStoredHistory = () => {
     try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const sanitized = sanitizeHistoryRecords(parsed);
+
+        // 既存データも読込時に自己修復して外れ値を物理削除する
+        if (JSON.stringify(parsed) !== JSON.stringify(sanitized)) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+        }
+
+        return sanitized;
     } catch (e) {
         console.error('storage parse error', e);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
         return [];
     }
 };
@@ -409,7 +475,14 @@ const initializeResultPeriodSelector = () => {
 };
 
 const computeHistoryMetrics = (history) => {
-    const count = history.length;
+    const safeHistory = Array.isArray(history)
+        ? history.filter((item) => {
+            const dateMs = new Date(item.date).getTime();
+            return toFiniteNumber(item.wpm) !== null && Number.isFinite(dateMs);
+        })
+        : [];
+
+    const count = safeHistory.length;
     if (count === 0) {
         return {
             recentAvgWpm: 0,
@@ -424,9 +497,9 @@ const computeHistoryMetrics = (history) => {
         };
     }
 
-    const wpms = history.map(h => Number(h.wpm));
+    const wpms = safeHistory.map(h => Number(h.wpm));
     const maxWpm = Math.max(...wpms);
-    const latest = history[count - 1];
+    const latest = safeHistory[count - 1];
     const latestWpm = Number(latest.wpm);
 
     const DAY = 24 * 60 * 60 * 1000;
@@ -434,7 +507,7 @@ const computeHistoryMetrics = (history) => {
 
     const toAvg = (arr) => arr.length > 0 ? arr.reduce((a,b) => a + b, 0) / arr.length : 0;
     const pickWindow = (startMs, endMs) => 
-        history
+        safeHistory
             .map(h => ({ t: new Date(h.date).getTime(), wpm: Number(h.wpm) }))
             .filter(h => h.t >= startMs && h.t <= endMs)
             .map(h => h.wpm);
@@ -452,7 +525,7 @@ const computeHistoryMetrics = (history) => {
     // aside-contents 用データ
     // 総プレイ日数の計算
     const daySet = new Set(
-        history.map(h => {
+        safeHistory.map(h => {
             const d = new Date(h.date);
             const y = d.getFullYear();
             const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -612,9 +685,15 @@ const highlightMissedKey = (char) => {
 
 // --- localStrageへの保存 ---
 const saveToLocalStorage = (data) => {
+    const normalizedData = normalizeResultRecord(data);
+    if (!normalizedData || !isValidResultRecord(normalizedData)) {
+        return false;
+    }
+
     const history = getStoredHistory();
-    history.push(data);
+    history.push(normalizedData);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+    return true;
 };
 
 const trackAnimation = (animation, label = 'anonymous') => {
@@ -1223,7 +1302,13 @@ const finishGame = () => {
     };
     
     // データの保存
-    saveToLocalStorage(resultData);
+    const isSaved = saveToLocalStorage(resultData);
+    if (!isSaved) {
+        console.info('outlier result skipped from history', {
+            wpm: resultData.wpm,
+            accuracy: resultData.accuracy,
+        });
+    }
 
     // 画面表示の更新
     document.querySelector('#current-guide').textContent = '';
