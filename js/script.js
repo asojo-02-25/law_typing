@@ -494,6 +494,7 @@ const computeHistoryMetrics = (history) => {
             currentStreakDays: 0,
             currentAvgWpm: 0,
             maxWpm: 0,
+            cumulativeWeakKeys: '特になし',
         };
     }
 
@@ -558,6 +559,33 @@ const computeHistoryMetrics = (history) => {
     const currentWpms = pickWindow(now - 7 * DAY, now);
     const currentAvgWpm = toAvg(currentWpms);
 
+    // 履歴内で最も出現回数が多い苦手キーを算出（同率はカンマ区切り）
+    const weakKeyCountMap = {};
+    safeHistory.forEach((item) => {
+        if (typeof item.weakKey !== 'string' || item.weakKey.length === 0 || item.weakKey === '特になし') {
+            return;
+        }
+
+        item.weakKey
+            .split(',')
+            .map((key) => key.trim())
+            .filter((key) => key.length > 0 && key !== '特になし')
+            .forEach((key) => {
+                weakKeyCountMap[key] = (weakKeyCountMap[key] || 0) + 1;
+            });
+    });
+
+    let cumulativeWeakKeys = '特になし';
+    const weakKeyEntries = Object.entries(weakKeyCountMap);
+    if (weakKeyEntries.length > 0) {
+        const maxWeakKeyCount = Math.max(...weakKeyEntries.map(([, value]) => value));
+        cumulativeWeakKeys = weakKeyEntries
+            .filter(([, value]) => value === maxWeakKeyCount)
+            .map(([key]) => key)
+            .sort((a, b) => a.localeCompare(b))
+            .join(',');
+    }
+
     return {
         recentAvgWpm,
         recentChange,
@@ -568,6 +596,7 @@ const computeHistoryMetrics = (history) => {
         currentStreakDays: streak,
         currentAvgWpm,
         maxWpm,
+        cumulativeWeakKeys,
     };
 };
 
@@ -1814,6 +1843,7 @@ const displaySideStats = (history) => {
     const currentStreakDaysEl = document.querySelector('#current-streak-days');
     const sideCurrentAvgWpmEl = document.querySelector('#side-current-avg-wpm');
     const sideMaxWpmEl = document.querySelector('#side-max-wpm');
+    const sideCumulativeWeakKeysEl = document.querySelector('#side-cumulative-weak-keys');
     const nextExamDaysEl = document.querySelector('#next-exam-days');
 
     const metrics = computeHistoryMetrics(history);
@@ -1828,6 +1858,9 @@ const displaySideStats = (history) => {
     }
     if(sideMaxWpmEl){
         sideMaxWpmEl.textContent = metrics.maxWpm.toFixed(2) + ' keys/秒';
+    }
+    if(sideCumulativeWeakKeysEl){
+        sideCumulativeWeakKeysEl.textContent = metrics.cumulativeWeakKeys;
     }
     if(nextExamDaysEl){
         nextExamDaysEl.textContent = metrics.nextExamDays + ' 日';
