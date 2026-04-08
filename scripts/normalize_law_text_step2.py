@@ -15,7 +15,8 @@ Filtering/normalization rules:
 3. Normalize with NFKC
 4. Remove bracketed segments and residual brackets
 5. Exclude text containing "号"
-6. Keep length in [50, 130]
+6. Exclude cross-reference-heavy text by mode
+7. Keep length in [50, 130]
 """
 
 from __future__ import annotations
@@ -48,6 +49,42 @@ OPEN_TO_CLOSE = {
 
 BRACKET_CHARS = "()（）[]［］{}｛｝「」『』〈〉《》【】"
 IGNORED_TEXT_TAGS = {"Rt"}
+REFERENCE_FILTER_MODES = ("none", "conservative", "balanced", "strict")
+KANJI_NUMBER_CHARS = "0-9一二三四五六七八九十百千〇零"
+
+PRIMARY_CROSS_REFERENCE_TERMS = (
+    "前項",
+    "次項",
+    "前条",
+    "次条",
+    "同項",
+    "同条",
+    "前号",
+    "次号",
+    "同号",
+    "本項",
+    "本条",
+    "本号",
+)
+
+SECONDARY_CROSS_REFERENCE_TERMS = (
+    "準用",
+    "例による",
+    "定めるところにより",
+    "読み替えて適用",
+)
+
+CONTEXTUAL_CROSS_REFERENCE_TERMS = (
+    "規定",
+    "当該",
+    "この法律",
+    "この条",
+    "この項",
+)
+
+ARTICLE_REFERENCE_RE = re.compile(
+    rf"第[{KANJI_NUMBER_CHARS}]+条(?:の[{KANJI_NUMBER_CHARS}]+)?(?:第[{KANJI_NUMBER_CHARS}]+項)?"
+)
 
 
 @dataclass(frozen=True)
@@ -131,6 +168,34 @@ def has_item_descendant(article: ET.Element) -> bool:
         if local_name(node.tag) == "Item":
             return True
     return False
+
+
+def classify_cross_reference(text: str, mode: str) -> Optional[str]:
+    if mode == "none":
+        return None
+
+    has_primary_term = any(term in text for term in PRIMARY_CROSS_REFERENCE_TERMS)
+    has_article_reference = ARTICLE_REFERENCE_RE.search(text) is not None
+    if has_primary_term or has_article_reference:
+        return "primary"
+
+    has_secondary_term = any(term in text for term in SECONDARY_CROSS_REFERENCE_TERMS)
+    if mode in {"balanced", "strict"} and has_secondary_term:
+        return "secondary"
+
+    if mode != "strict":
+        return None
+
+    has_contextual_term = any(term in text for term in CONTEXTUAL_CROSS_REFERENCE_TERMS)
+    if not has_contextual_term:
+        return None
+
+    # Avoid broad false positives by requiring a contextual anchor with 規定.
+    has_contextual_anchor = any(anchor in text for anchor in ("この法律", "この条", "この項", "当該"))
+    if has_contextual_anchor and "規定" in text:
+        return "contextual"
+
+    return None
 
 
 def find_first(node: ET.Element, name: str) -> Optional[ET.Element]:
@@ -227,6 +292,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--min-length", type=int, default=50, help="Minimum text length")
     parser.add_argument("--max-length", type=int, default=130, help="Maximum text length")
+    parser.add_argument(
+        "--reference-filter-mode",
+        choices=REFERENCE_FILTER_MODES,
+        default="balanced",
+        help="Cross-reference filtering strictness",
+    )
     return parser.parse_args()
 
 
@@ -239,6 +310,10 @@ def build_summary_template() -> Dict[str, int]:
         "filtered_empty": 0,
         "filtered_has_bracket": 0,
         "filtered_contains_go": 0,
+        "filtered_cross_reference": 0,
+        "filtered_cross_reference_primary": 0,
+        "filtered_cross_reference_secondary": 0,
+        "filtered_cross_reference_contextual": 0,
         "filtered_too_short": 0,
         "filtered_too_long": 0,
         "filtered_duplicate": 0,
@@ -311,6 +386,16 @@ def main() -> int:
                     per_field[rec.field]["filtered_contains_go"] += 1
                     continue
 
+                cross_ref_class = classify_cross_reference(text, args.reference_filter_mode)
+                if cross_ref_class is not None:
+                    overall["filtered_cross_reference"] += 1
+                    per_field[rec.field]["filtered_cross_reference"] += 1
+
+                    class_key = f"filtered_cross_reference_{cross_ref_class}"
+                    overall[class_key] += 1
+                    per_field[rec.field][class_key] += 1
+                    continue
+
                 text_len = len(text)
                 if text_len < args.min_length:
                     overall["filtered_too_short"] += 1
@@ -353,6 +438,13 @@ def main() -> int:
             "normalize_nfkc": True,
             "remove_bracket_contents": True,
             "remove_text_contains_go": True,
+            "reference_filter_mode": args.reference_filter_mode,
+            "reference_filter_terms": {
+                "primary": list(PRIMARY_CROSS_REFERENCE_TERMS),
+                "secondary": list(SECONDARY_CROSS_REFERENCE_TERMS),
+                "contextual": list(CONTEXTUAL_CROSS_REFERENCE_TERMS),
+                "article_reference_regex": ARTICLE_REFERENCE_RE.pattern,
+            },
             "min_length": args.min_length,
             "max_length": args.max_length,
         },

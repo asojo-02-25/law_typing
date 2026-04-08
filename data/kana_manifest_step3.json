@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T00:18:36",
+  "generated_at": "2026-04-08T14:07:40",
   "input_json": "data/normalized_questions_step2.json",
   "output_json": "data/questions_step3_kana.json",
   "rules": {
@@ -13,15 +13,15 @@
     "converter": "pykakasi"
   },
   "summary": {
-    "input_count": 4965,
-    "output_count": 4965,
+    "input_count": 2844,
+    "output_count": 2844,
     "skipped_invalid": 0,
-    "custom_reading_hits_total": 257,
+    "custom_reading_hits_total": 173,
     "custom_reading_hits_by_term": {
-      "遺言": 112,
-      "競売": 63,
+      "遺言": 78,
+      "競売": 46,
       "瑕疵": 7,
-      "勾留": 75
+      "勾留": 42
     }
   }
 }
