@@ -368,9 +368,9 @@ hr{
     /*結果画面*/
     .result-graph-area{
         background-color: var(--base-color);
-        margin: .5rem .25rem .5rem .25rem;
+        margin: 0 .25rem 0 .25rem;
         width: 37.5rem;
-        height : 19rem;
+        height : 21.25rem;
         border-radius: 12px;
         display: flex;
         flex-direction: column;
@@ -424,7 +424,7 @@ hr{
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         background-color: var(--base-color);
-        margin: .5rem .25rem .5rem .25rem;
+        margin: 0 .25rem 0 .25rem;
         padding: .5rem 1rem .5rem 1rem;
         height: 7.75rem;
         width: 37.5rem;
@@ -540,7 +540,10 @@ hr{
     #results-screen{
         display: none;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
+        gap: .5rem;
+        padding-top: .5rem;
+        padding-bottom: .5rem;
     }
      
 /*注意書き*/

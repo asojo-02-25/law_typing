@@ -22,7 +22,6 @@ let resultChartInstance = null; // 結果チャートのインスタンス保持
 let selectedResultPeriod = 'all'; // 結果グラフの表示期間
 let lastGameSettings = null;    // 直近プレイ設定を保持
 let resultTimer1 = null;        // 結果画面タイマー1
-let resultTimer2 = null;        // 結果画面タイマー2
 let resultTransitionToken = 0;  // 結果遷移の世代トークン
 const trackedUiAnimations = new Set(); // 明示的に追跡するUIアニメーション
 let trackedAnimationSequence = 0;
@@ -966,10 +965,6 @@ const invalidateResultTransitions = () => {
         clearTimeout(resultTimer1);
         resultTimer1 = null;
     }
-    if(resultTimer2){
-        clearTimeout(resultTimer2);
-        resultTimer2 = null;
-    }
 };
 
 const resetGameScreenVisualState = (prepareForStart = false) => {
@@ -1741,7 +1736,7 @@ const showResults = (data) => {
             screen.style.transform = 'scale(1)';
         });
 
-        trackAnimation(questionArea.animate([
+        const questionAreaAnimation = trackAnimation(questionArea.animate([
             {height: GAME_SCREEN_VISUAL_DEFAULTS.questionAreaHeight, margin: GAME_SCREEN_VISUAL_DEFAULTS.questionAreaMargin, opacity: 1},
             {height: '0rem', margin: '0 .25rem 0 .25rem', opacity: 0},
         ],{
@@ -1750,9 +1745,9 @@ const showResults = (data) => {
             transformOrigin: 'top',
         }), 'result:question-area');
 
-        trackAnimation(answerArea.animate([
+        const answerAreaAnimation = trackAnimation(answerArea.animate([
             {height: GAME_SCREEN_VISUAL_DEFAULTS.answerAreaHeight},
-            {height: '21rem'},
+            {height: '21.25rem'},
         ],{
             duration: 400,
             fill: 'forwards',
@@ -1778,38 +1773,44 @@ const showResults = (data) => {
             fill: 'forwards',
         }), 'result:input');
 
-        resultTimer1 = null;
-    }, 1000)
-    
-    resultTimer2 = setTimeout(() => {    
-        if (transitionToken !== resultTransitionToken || currentScreen !== SCREEN.GAME) {
-            resultTimer2 = null;
-            return;
-        }
+        Promise.allSettled([
+            questionAreaAnimation.finished,
+            answerAreaAnimation.finished,
+        ]).then(() => {
+            if (transitionToken !== resultTransitionToken || currentScreen !== SCREEN.GAME) {
+                return;
+            }
 
-        setVisibleScreen(SCREEN.RESULTS);
-        console.log('リザルト画面を表示');
+            setVisibleScreen(SCREEN.RESULTS);
+            console.log('リザルト画面を表示');
 
-        // 画面表示の更新
-        drawResultChart();
-        displayResultStats(data);
+            // 画面切替を先に確定させ、重い描画処理は次フレームへ送る
+            requestAnimationFrame(() => {
+                if (transitionToken !== resultTransitionToken || currentScreen !== SCREEN.RESULTS) {
+                    return;
+                }
 
-        const history = getStoredHistory();
-        displaySideStats(history);
+                drawResultChart();
+                displayResultStats(data);
 
-        statItems.forEach((item, index) => {
-            trackAnimation(item.animate([
-                {opacity: 0},
-                {opacity: 1},
-            ],{
-                duration: 500,
-                fill: 'forwards',
-                easing: 'ease-in-out',
-            }), `result:stat:${item.id || index}`);
+                const history = getStoredHistory();
+                displaySideStats(history);
+
+                statItems.forEach((item, index) => {
+                    trackAnimation(item.animate([
+                        {opacity: 0},
+                        {opacity: 1},
+                    ],{
+                        duration: 500,
+                        fill: 'forwards',
+                        easing: 'ease-in-out',
+                    }), `result:stat:${item.id || index}`);
+                });
+            });
         });
 
-        resultTimer2 = null;
-    }, 1500);
+        resultTimer1 = null;
+    }, 1000);
 };
 
 // ====================================
