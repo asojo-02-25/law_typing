@@ -205,7 +205,7 @@ hr{
     .game-area{
         background-color: var(--base-color);
         border-radius: 12px;
-        margin: .5rem .25rem .5rem .25rem;
+        margin: 0 .25rem 0 .25rem;
         width: 37.5rem;
         ;
     }
@@ -214,7 +214,7 @@ hr{
     .question-info{
         display: flex;
         justify-content: space-between;
-        padding: .25rem 2rem 0 2rem;
+        padding: .25rem 1.75rem 0 1.75rem;
     }
 
     
@@ -240,12 +240,12 @@ hr{
     }
 
     #question-remaining{
-        padding: 0 2rem .5rem 2rem;
+        padding: 0 1.75rem .25rem 1.75rem;
         margin-top: auto;
     }
 
     #answer-area{
-        height: 8rem;
+        height: 8.25rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -265,12 +265,12 @@ hr{
     }
 
     #question-text{
-        padding: .25rem 2rem .25rem 2rem;
+        padding: .25rem 1.75rem .25rem 1.75rem;
     }
 
     #current-guide{
         text-align: center;
-        padding: .5rem 2rem 0 2rem;
+        padding: .25rem 1.75rem .25rem 1.75rem;
         min-height: 3.5rem;
     }
 
@@ -284,7 +284,7 @@ hr{
 
     #user-input{
         text-align: center;
-        padding: .25 2rem .25rem 2rem;
+        padding: .25rem 1.75rem .25rem 1.75rem;
         min-height: 3.5rem;
         width: 100%;
         word-break: break-all;
@@ -531,7 +531,10 @@ hr{
     #game-screen{
         display: none;
         flex-direction: column;
-        justify-content: center;
+        align-items: center;
+        justify-content: flex-start;
+        gap: .5rem;
+        padding: .5rem 0 .5rem 0;
     }
     
     #results-screen{

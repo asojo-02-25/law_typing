@@ -404,8 +404,8 @@ let currentScreen = SCREEN.START;
 
 const GAME_SCREEN_VISUAL_DEFAULTS = Object.freeze({
     questionAreaHeight: '12.5rem',
-    questionAreaMargin: '.5rem .25rem .5rem .25rem',
-    answerAreaHeight: '8rem',
+    questionAreaMargin: '0 .25rem 0 .25rem',
+    answerAreaHeight: '8.25rem',
 });
 
 const cancelAnimationsOnElement = (element) => {
@@ -417,7 +417,7 @@ const cancelAnimationsOnElement = (element) => {
 
 const normalizeGameScreenAnimatedStyles = () => {
     questionArea.style.height = GAME_SCREEN_VISUAL_DEFAULTS.questionAreaHeight;
-    questionArea.style.margin = GAME_SCREEN_VISUAL_DEFAULTS.questionAreaMargin;
+    questionArea.style.margin = '';
     questionArea.style.opacity = '1';
     questionArea.style.transform = 'none';
 
