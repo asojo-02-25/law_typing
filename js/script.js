@@ -22,7 +22,6 @@ let resultChartInstance = null; // 結果チャートのインスタンス保持
 let selectedResultPeriod = 'all'; // 結果グラフの表示期間
 let lastGameSettings = null;    // 直近プレイ設定を保持
 let resultTimer1 = null;        // 結果画面タイマー1
-let resultTimer2 = null;        // 結果画面タイマー2
 let resultTransitionToken = 0;  // 結果遷移の世代トークン
 const trackedUiAnimations = new Set(); // 明示的に追跡するUIアニメーション
 let trackedAnimationSequence = 0;
@@ -199,6 +198,47 @@ const updateChunkIndexFromState = (force = false) => {
     }
 };
 
+const escapeHtml = (rawText = '') => {
+    return String(rawText)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+};
+
+const getCompletedKanaLengthInCurrentChunk = () => {
+    const currentGuideChunk = chunkedKana[currentChunkIndex];
+    if (!currentGuideChunk) return 0;
+
+    const safeLimit = Math.min(
+        typingState.currentUnitIdx,
+        typingState.units.length,
+        unitChunkMap.length
+    );
+
+    let completedLength = 0;
+    for (let idx = 0; idx < safeLimit; idx++) {
+        if (unitChunkMap[idx] !== currentChunkIndex) continue;
+        completedLength += Array.from(typingState.units[idx] || '').length;
+    }
+
+    const chunkLength = Array.from(currentGuideChunk).length;
+    return Math.max(0, Math.min(completedLength, chunkLength));
+};
+
+const buildCurrentGuideHtml = () => {
+    const currentGuideChunk = chunkedKana[currentChunkIndex];
+    if (!currentGuideChunk) return '';
+
+    const guideChars = Array.from(currentGuideChunk);
+    const completedLength = getCompletedKanaLengthInCurrentChunk();
+    const completedText = escapeHtml(guideChars.slice(0, completedLength).join(''));
+    const pendingText = escapeHtml(guideChars.slice(completedLength).join(''));
+
+    return `<span class="guide-completed">${completedText}</span><span class="guide-pending">${pendingText}</span>`;
+};
+
 const buildKanaChunks = (kanaText) => {
     if (!kanaText) return [];
     return kanaText.split(/([、。])/).reduce((acc, curr) => {
@@ -363,8 +403,8 @@ let currentScreen = SCREEN.START;
 
 const GAME_SCREEN_VISUAL_DEFAULTS = Object.freeze({
     questionAreaHeight: '12.5rem',
-    questionAreaMargin: '.5rem .25rem .5rem .25rem',
-    answerAreaHeight: '8rem',
+    questionAreaMargin: '0 .25rem 0 .25rem',
+    answerAreaHeight: '7.25rem',
 });
 
 const cancelAnimationsOnElement = (element) => {
@@ -376,7 +416,7 @@ const cancelAnimationsOnElement = (element) => {
 
 const normalizeGameScreenAnimatedStyles = () => {
     questionArea.style.height = GAME_SCREEN_VISUAL_DEFAULTS.questionAreaHeight;
-    questionArea.style.margin = GAME_SCREEN_VISUAL_DEFAULTS.questionAreaMargin;
+    questionArea.style.margin = '';
     questionArea.style.opacity = '1';
     questionArea.style.transform = 'none';
 
@@ -925,10 +965,6 @@ const invalidateResultTransitions = () => {
         clearTimeout(resultTimer1);
         resultTimer1 = null;
     }
-    if(resultTimer2){
-        clearTimeout(resultTimer2);
-        resultTimer2 = null;
-    }
 };
 
 const resetGameScreenVisualState = (prepareForStart = false) => {
@@ -1350,9 +1386,9 @@ const updateQuestionDisplay = () => {
         sourceElement.textContent = currentQuestion.source;
     }
 
-    // 今打つべき文節を入力欄の上に表示する
-    if(chunkedText[currentChunkIndex]){
-        guideElement.textContent = chunkedText[currentChunkIndex];
+    // 今打つべきかな文節を入力欄の上に表示する（確定済みユニットのみ太字）
+    if(chunkedKana[currentChunkIndex]){
+        guideElement.innerHTML = buildCurrentGuideHtml();
     }else{
         guideElement.textContent = '';
     }
@@ -1573,7 +1609,7 @@ const drawResultChart = () => {
                         usePointStyle: true,
                         pointStyle: 'line',
                         font: {
-                            size: 10,
+                            size: 12,
                         },
                         boxWidth: 24,
                         padding: 8,
@@ -1700,7 +1736,7 @@ const showResults = (data) => {
             screen.style.transform = 'scale(1)';
         });
 
-        trackAnimation(questionArea.animate([
+        const questionAreaAnimation = trackAnimation(questionArea.animate([
             {height: GAME_SCREEN_VISUAL_DEFAULTS.questionAreaHeight, margin: GAME_SCREEN_VISUAL_DEFAULTS.questionAreaMargin, opacity: 1},
             {height: '0rem', margin: '0 .25rem 0 .25rem', opacity: 0},
         ],{
@@ -1709,9 +1745,9 @@ const showResults = (data) => {
             transformOrigin: 'top',
         }), 'result:question-area');
 
-        trackAnimation(answerArea.animate([
+        const answerAreaAnimation = trackAnimation(answerArea.animate([
             {height: GAME_SCREEN_VISUAL_DEFAULTS.answerAreaHeight},
-            {height: '21rem'},
+            {height: '21.25rem'},
         ],{
             duration: 400,
             fill: 'forwards',
@@ -1737,38 +1773,44 @@ const showResults = (data) => {
             fill: 'forwards',
         }), 'result:input');
 
-        resultTimer1 = null;
-    }, 1000)
-    
-    resultTimer2 = setTimeout(() => {    
-        if (transitionToken !== resultTransitionToken || currentScreen !== SCREEN.GAME) {
-            resultTimer2 = null;
-            return;
-        }
+        Promise.allSettled([
+            questionAreaAnimation.finished,
+            answerAreaAnimation.finished,
+        ]).then(() => {
+            if (transitionToken !== resultTransitionToken || currentScreen !== SCREEN.GAME) {
+                return;
+            }
 
-        setVisibleScreen(SCREEN.RESULTS);
-        console.log('リザルト画面を表示');
+            setVisibleScreen(SCREEN.RESULTS);
+            console.log('リザルト画面を表示');
 
-        // 画面表示の更新
-        drawResultChart();
-        displayResultStats(data);
+            // 画面切替を先に確定させ、重い描画処理は次フレームへ送る
+            requestAnimationFrame(() => {
+                if (transitionToken !== resultTransitionToken || currentScreen !== SCREEN.RESULTS) {
+                    return;
+                }
 
-        const history = getStoredHistory();
-        displaySideStats(history);
+                drawResultChart();
+                displayResultStats(data);
 
-        statItems.forEach((item, index) => {
-            trackAnimation(item.animate([
-                {opacity: 0},
-                {opacity: 1},
-            ],{
-                duration: 500,
-                fill: 'forwards',
-                easing: 'ease-in-out',
-            }), `result:stat:${item.id || index}`);
+                const history = getStoredHistory();
+                displaySideStats(history);
+
+                statItems.forEach((item, index) => {
+                    trackAnimation(item.animate([
+                        {opacity: 0},
+                        {opacity: 1},
+                    ],{
+                        duration: 500,
+                        fill: 'forwards',
+                        easing: 'ease-in-out',
+                    }), `result:stat:${item.id || index}`);
+                });
+            });
         });
 
-        resultTimer2 = null;
-    }, 1500);
+        resultTimer1 = null;
+    }, 1000);
 };
 
 // ====================================
