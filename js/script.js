@@ -627,9 +627,6 @@ const getStoredHistoryForDisplay = (history = getStoredHistoryAll()) => {
     return history.slice(-HISTORY_STORAGE_LIMIT);
 };
 
-// 互換性維持: 既存の getStoredHistory 呼び出しは表示用途として扱う
-const getStoredHistory = () => getStoredHistoryForDisplay();
-
 const flattenLawHistoryEntries = (history) => {
     if (!Array.isArray(history) || history.length === 0) {
         return [];
