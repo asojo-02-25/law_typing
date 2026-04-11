@@ -56,12 +56,23 @@
                                 <input type="radio" name="itemcounts" value="10" id="ten"><label for="ten">10問</label></input></br>
                             </div>
                             <div class="left">
+                                <p class="center">分野</p>
+                                <input type="checkbox" name="field" value="constitutional" id="constitutional-law" checked><label for="constitutional-law">憲法</label></br>  
+                                <input type="checkbox" name="field" value="administrative" id="administrative-law" checked><label for="administrative-law">行政法</label></br>
+                                <input type="checkbox" name="field" value="civil" id="civil-law" checked><label for="civil-law">民法</label></br>
+                                <input type="checkbox" name="field" value="commercial" id="commercial-law" checked><label for="commercial-law">商法</label></br>
+                                <input type="checkbox" name="field" value="civil_procedure" id="civil-procedure-law" checked><label for="civil-procedure-law">民事訴訟法</label></br>
+                                <input type="checkbox" name="field" value="criminal" id="criminal-law" checked><label for="criminal-law">刑法</label></br>
+                                <input type="checkbox" name="field" value="criminal_procedure" id="criminal-procedure-law" checked><label for="criminal-procedure-law">刑事訴訟法</label></br>
+                            </div>
+                            <div class="left">
                                 <p class="center">設定</p>
                                 <input type="checkbox" name="setting" value="keyboard-represent" id="keyboard" checked><label for="keyboard">キーボード表示</label></br>
                                 <!-- <input type="checkbox" name="setting" value="roman-letters-represent" id="Roman-letters"><label for="Roman-letters">ローマ字表示</label></br> -->
                             </div>
                         </div>
                         <div>
+                            <p id="start-error-message" class="form-error-message font-middle font-bold"></p>
                             <input type="submit" value="ゲームスタート" id="start-button" class="font-white font-bold">
                             <p><span>Spaceキー</span> : スタート</p>
                             <p><span>Escキー</span> : この画面に戻る</p>
