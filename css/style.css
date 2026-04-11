@@ -202,6 +202,12 @@ hr{
     #start-button:hover{
         background-color: #1a60d6;
     }
+
+    .form-error-message{
+        min-height: 1.5rem;
+        margin: 0 0 .25rem 0;
+        color: #c53030;
+    }
     
     /*ゲーム画面*/
     .game-area{

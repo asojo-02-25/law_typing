@@ -29,6 +29,16 @@ const trackedAnimationMeta = new WeakMap();
 let typingQuestions = [...fallbackTypingQuestions];
 let isQuestionDataReady = false;
 const questionsJsonUrl = new URL('../data/questions.json', import.meta.url);
+const START_FIELD_TO_LABEL_MAP = Object.freeze({
+    constitutional: '憲法',
+    civil: '民法',
+    commercial: '商法',
+    civil_procedure: '民事訴訟法',
+    administrative: '行政法',
+    criminal: '刑法',
+    criminal_procedure: '刑事訴訟法',
+});
+const ALL_START_FIELD_KEYS = Object.freeze(Object.keys(START_FIELD_TO_LABEL_MAP));
 
 const animationTrackerLogger = {
     enabled: true,
@@ -360,6 +370,7 @@ const keyIdMap = {
 // ====================================
 
 const form = document.getElementById('form');
+const startErrorElement = document.getElementById('start-error-message');
 const startScreen = document.getElementById('start-screen');
 const gameScreen = document.getElementById('game-screen');
 const resultsScreen = document.getElementById('results-screen');
@@ -454,6 +465,33 @@ const showResultsOverview = (history = getStoredHistory()) => {
 
 const isTransitionPhase = () => !isGameActive && currentScreen === SCREEN.GAME;
 
+const setStartScreenError = (message = '') => {
+    if (!startErrorElement) return;
+    startErrorElement.textContent = message;
+};
+
+const clearStartScreenError = () => {
+    setStartScreenError('');
+};
+
+const getNormalizedSelectedFieldKeys = (selectedFields = []) => {
+    if (!Array.isArray(selectedFields)) return [];
+    const safeKeys = selectedFields
+        .filter((value) => typeof value === 'string')
+        .map((value) => value.trim())
+        .filter((value) => Object.hasOwn(START_FIELD_TO_LABEL_MAP, value));
+    return Array.from(new Set(safeKeys));
+};
+
+const filterQuestionsBySelectedFields = (questions, selectedFieldKeys) => {
+    if (!Array.isArray(questions) || questions.length === 0) return [];
+    const normalizedKeys = getNormalizedSelectedFieldKeys(selectedFieldKeys);
+    if (normalizedKeys.length === 0) return [];
+
+    const selectedLabels = new Set(normalizedKeys.map((key) => START_FIELD_TO_LABEL_MAP[key]));
+    return questions.filter((question) => selectedLabels.has(question.field));
+};
+
 // ====================================
 // ページロード時の初期化
 // ====================================
@@ -475,6 +513,7 @@ window.addEventListener('load', () => {
     }
 
     setVisibleScreen(SCREEN.START);
+    clearStartScreenError();
 });
 
 // ====================================
@@ -787,10 +826,16 @@ const getGameSettings = () => {
         options.push(checkbox.value);
     });
 
+    const selectedFields = [];
+    document.querySelectorAll('input[name="field"]:checked').forEach((checkbox) => {
+        selectedFields.push(checkbox.value);
+    });
+
     return{
         mode: format,
         questionCounts: itemcounts,
         settings: options,
+        selectedFields,
     };
 };
 
@@ -1020,6 +1065,19 @@ const startGame = (config) => {
         console.warn('[QuestionLoader] no question data available');
         return;
     }
+    clearStartScreenError();
+
+    const selectedFieldKeys = getNormalizedSelectedFieldKeys(config?.selectedFields ?? ALL_START_FIELD_KEYS);
+    if (selectedFieldKeys.length === 0) {
+        setStartScreenError('少なくとも1科目を選択してください。');
+        return;
+    }
+
+    const filteredQuestions = filterQuestionsBySelectedFields(typingQuestions, selectedFieldKeys);
+    if (filteredQuestions.length === 0) {
+        setStartScreenError('選択した科目に該当する問題がありません。');
+        return;
+    }
 
     // staleな結果遷移を必ず無効化
     invalidateResultTransitions();
@@ -1065,7 +1123,7 @@ const startGame = (config) => {
         };
         return cloneArray;
     }
-    const shuffledQuestions = shuffleArray(typingQuestions);
+    const shuffledQuestions = shuffleArray(filteredQuestions);
 
     // 問題をスライス
     const count = Math.min(shuffledQuestions.length, config.questionCounts);
@@ -1872,6 +1930,7 @@ const resetGame = () => {
 
     // 画面の切り替え
     setVisibleScreen(SCREEN.START);
+    clearStartScreenError();
 };
 
 // ====================================
