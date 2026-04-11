@@ -2097,6 +2097,7 @@ const resetGame = () => {
     // html要素のリセット
     textElement.innerHTML = '';
     charGuideElement.textContent = '';
+    charGuideElement.style.display = '';
     guideElement.textContent = '';    
     inputElement.textContent = '';
     guideElement.style.display = 'none';
