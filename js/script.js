@@ -365,8 +365,9 @@ const gameScreen = document.getElementById('game-screen');
 const resultsScreen = document.getElementById('results-screen');
 const delayScreens = document.querySelectorAll('.delay-screen');
 const textElement = document.getElementById('question-text');
-const inputElement = document.getElementById('user-input');
+const charGuideElement = document.getElementById('current-char-guide');
 const guideElement = document.getElementById('current-guide');
+const inputElement = document.getElementById('user-input');
 const fieldElement = document.getElementById('question-field');
 const sourceElement  = document.getElementById('question-source'); 
 const remainingElement = document.getElementById('question-remaining');
@@ -384,8 +385,9 @@ const hasGameScreenDom = Boolean(
     && gameScreen
     && resultsScreen
     && textElement
-    && inputElement
+    && charGuideElement
     && guideElement
+    && inputElement
     && fieldElement
     && sourceElement
     && questionArea
@@ -402,9 +404,9 @@ const SCREEN = {
 let currentScreen = SCREEN.START;
 
 const GAME_SCREEN_VISUAL_DEFAULTS = Object.freeze({
-    questionAreaHeight: '12.5rem',
+    questionAreaHeight: '10.25rem',
     questionAreaMargin: '0 .25rem 0 .25rem',
-    answerAreaHeight: '7.25rem',
+    answerAreaHeight: '10.5rem',
 });
 
 const cancelAnimationsOnElement = (element) => {
@@ -1386,6 +1388,13 @@ const updateQuestionDisplay = () => {
         sourceElement.textContent = currentQuestion.source;
     }
 
+    // 今打つべき漢字文節を入力欄の上に表示する
+    if(chunkedText[currentChunkIndex]){
+        charGuideElement.textContent = chunkedText[currentChunkIndex];
+    }else{
+        charGuideElement.textContent = '';
+    }
+
     // 今打つべきかな文節を入力欄の上に表示する（確定済みユニットのみ太字）
     if(chunkedKana[currentChunkIndex]){
         guideElement.innerHTML = buildCurrentGuideHtml();
@@ -1393,6 +1402,7 @@ const updateQuestionDisplay = () => {
         guideElement.textContent = '';
     }
 
+    // user-inputの表示
     inputBuffer = chunkCommittedRomaji + typingState.typedBuffer;
     inputElement.textContent = inputBuffer;
 
@@ -1468,8 +1478,10 @@ const finishGame = () => {
     }
 
     // 画面表示の更新
-    document.querySelector('#current-guide').textContent = '';
-    document.querySelector('#current-guide').style.display = 'none';
+    charGuideElement.textContent = '';
+    charGuideElement.style.display = 'none';
+    guideElement.textContent = '';
+    guideElement.style.display = 'none';
     document.querySelector('#user-input').textContent = 'finish!';
     document.querySelectorAll('.key.active').forEach((keys) => {
         keys.classList.remove('active');
@@ -1847,8 +1859,9 @@ const resetGame = () => {
 
     // html要素のリセット
     textElement.innerHTML = '';
+    charGuideElement.textContent = '';
+    guideElement.textContent = '';    
     inputElement.textContent = '';
-    guideElement.textContent = '';
     guideElement.style.display = 'none';
     fieldElement.textContent = '';
     sourceElement.textContent = '';
