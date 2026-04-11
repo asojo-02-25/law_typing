@@ -461,13 +461,13 @@ const setVisibleScreen = (screen) => {
     currentScreen = screen;
 };
 
-const showResultsOverview = (history = getStoredHistory()) => {
-    drawResultChart();
+const showResultsOverview = (history = getStoredHistoryAll()) => {
+    drawResultChart(history);
     const latest = history.length
         ? history[history.length - 1]
         : { wpm: 0, accuracy: 0, weakKey: '特になし' };
-    displayResultStats(latest);
-    renderLawHistory(history, 1);
+    displayResultStats(latest, history);
+    renderLawHistory(getStoredHistoryForDisplay(history), 1);
     statItems.forEach((item) => {
         item.style.opacity = 1;
     });
@@ -508,9 +508,9 @@ const filterQuestionsBySelectedFields = (questions, selectedFieldKeys) => {
 
 // ページ読み込み時に画面状態をリセット
 window.addEventListener('load', () => {
-    const history = getStoredHistory();
-    displaySideStats(history);
-    renderLawHistory(history, 1);
+    const allHistory = getStoredHistoryAll();
+    displaySideStats(allHistory);
+    renderLawHistory(getStoredHistoryForDisplay(allHistory), 1);
 
     if (!hasGameScreenDom) {
         return;
@@ -519,7 +519,7 @@ window.addEventListener('load', () => {
     const requestedScreen = new URLSearchParams(window.location.search).get('screen');
     if (requestedScreen === SCREEN.RESULTS) {
         setVisibleScreen(SCREEN.RESULTS);
-        showResultsOverview(history);
+        showResultsOverview(allHistory);
         return;
     }
 
@@ -602,24 +602,33 @@ const sanitizeHistoryRecords = (history) => {
         .filter((record) => record && isValidResultRecord(record));
 };
 
-const getStoredHistory = () => {
+const getStoredHistoryAll = () => {
     try {
         const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         const sanitized = sanitizeHistoryRecords(parsed);
-        const trimmed = sanitized.slice(-HISTORY_STORAGE_LIMIT);
 
-        // 既存データも読込時に自己修復して外れ値を物理削除する
-        if (JSON.stringify(parsed) !== JSON.stringify(trimmed)) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+        // 読込時の自己修復は sanitize による不正データ除去時のみ実施する
+        if (JSON.stringify(parsed) !== JSON.stringify(sanitized)) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
         }
 
-        return trimmed;
+        return sanitized;
     } catch (e) {
         console.error('storage parse error', e);
         localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
         return [];
     }
 };
+
+const getStoredHistoryForDisplay = (history = getStoredHistoryAll()) => {
+    if (!Array.isArray(history) || history.length === 0) {
+        return [];
+    }
+    return history.slice(-HISTORY_STORAGE_LIMIT);
+};
+
+// 互換性維持: 既存の getStoredHistory 呼び出しは表示用途として扱う
+const getStoredHistory = () => getStoredHistoryForDisplay();
 
 const flattenLawHistoryEntries = (history) => {
     if (!Array.isArray(history) || history.length === 0) {
@@ -648,7 +657,7 @@ const flattenLawHistoryEntries = (history) => {
     return entries;
 };
 
-const buildCombinedLawHistoryEntries = (history = getStoredHistory()) => {
+const buildCombinedLawHistoryEntries = (history = getStoredHistoryForDisplay()) => {
     const persistedEntries = flattenLawHistoryEntries(history);
     const runtimeEntries = currentRunTypedHistory
         .slice()
@@ -685,7 +694,7 @@ const createLawHistoryCardElement = (entry) => {
     return cardElement;
 };
 
-const renderLawHistory = (history = getStoredHistory(), requestedPage = selectedLawHistoryPage) => {
+const renderLawHistory = (history = getStoredHistoryForDisplay(), requestedPage = selectedLawHistoryPage) => {
     if (!lawHistoryListElement || !lawHistoryPaginationElement || !lawHistoryEmptyElement || !lawHistoryCardTemplate) {
         return;
     }
@@ -786,7 +795,7 @@ const initializeLawHistoryPagination = () => {
             return;
         }
 
-        renderLawHistory(getStoredHistory(), page);
+        renderLawHistory(getStoredHistoryForDisplay(), page);
         if (resultHistorySection) {
             resultHistorySection.scrollIntoView({
                 behavior: 'smooth',
@@ -922,7 +931,7 @@ const computeHistoryMetrics = (history) => {
     };
 };
 
-const displayResultStats = (data) => {
+const displayResultStats = (data, history = getStoredHistoryAll()) => {
     // html 要素の取得
     const wpmEl = document.getElementById('stat-wpm');
     const accEl = document.getElementById('stat-accuracy');
@@ -945,7 +954,6 @@ const displayResultStats = (data) => {
     if (accEl) accEl.textContent = Number(data.accuracy).toFixed(1) + ' %';
     if (weakEl) weakEl.textContent = data.weakKey || '特になし';
 
-    const history = getStoredHistory();
     const metrics = computeHistoryMetrics(history);
 
     if(recentAvgEl) {
@@ -1045,10 +1053,9 @@ const saveToLocalStorage = (data) => {
         return false;
     }
 
-    const history = getStoredHistory();
+    const history = getStoredHistoryAll();
     history.push(normalizedData);
-    const trimmedHistory = history.slice(-HISTORY_STORAGE_LIMIT);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmedHistory));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
     return true;
 };
 
@@ -1259,7 +1266,7 @@ const startGame = (config) => {
     missedKeysMap = {};
     currentRunTypedHistory = [];
     gameStartTime = Date.now();
-    renderLawHistory(getStoredHistory(), 1);
+    renderLawHistory(getStoredHistoryForDisplay(), 1);
 
     // if(config.settings.includes('roman-letters-represent')){
     //     console.log("ローマ字を表示します");
@@ -1640,7 +1647,7 @@ const nextQuestion = () => {
             source: completedQuestion.source,
             text: completedQuestion.text,
         });
-        renderLawHistory(getStoredHistory(), 1);
+        renderLawHistory(getStoredHistoryForDisplay(), 1);
     }
 
     currentQuestionIndex++;
@@ -1730,15 +1737,12 @@ const finishGame = () => {
 // グラフ描画 (drawResultChart)
 // ====================================
 
-const drawResultChart = () => {
+const drawResultChart = (history = getStoredHistoryAll()) => {
     const resultChartCanvas = document.getElementById('result-chart');
     if (!resultChartCanvas) {
         return;
     }
     const ctx = resultChartCanvas.getContext('2d');
-
-    // ローカルストレージからデータを取得
-    const history = getStoredHistory();
 
     // 選択された期間のデータを取得
     const recentHistory = getHistoryByPeriod(history, selectedResultPeriod);
@@ -2040,9 +2044,9 @@ const showResults = (data) => {
                 drawResultChart();
                 displayResultStats(data);
 
-                const history = getStoredHistory();
-                displaySideStats(history);
-                renderLawHistory(history, 1);
+                const allHistory = getStoredHistoryAll();
+                displaySideStats(allHistory);
+                renderLawHistory(getStoredHistoryForDisplay(allHistory), 1);
 
                 statItems.forEach((item, index) => {
                     trackAnimation(item.animate([
@@ -2111,7 +2115,7 @@ const resetGame = () => {
     // 画面の切り替え
     setVisibleScreen(SCREEN.START);
     clearStartScreenError();
-    renderLawHistory(getStoredHistory(), 1);
+    renderLawHistory(getStoredHistoryForDisplay(), 1);
 };
 
 // ====================================
