@@ -437,7 +437,6 @@ const cancelAnimationsOnElement = (element) => {
 
 const normalizeGameScreenAnimatedStyles = () => {
     questionArea.style.height = '';
-    questionArea.style.margin = '';
     questionArea.style.opacity = '1';
     questionArea.style.transform = 'none';
 
@@ -1995,8 +1994,8 @@ const showResults = (data) => {
         const answerAreaStartHeight = getElementPixelHeight(answerArea);
 
         const questionAreaAnimation = trackAnimation(questionArea.animate([
-            {height: questionAreaStartHeight, margin: GAME_SCREEN_VISUAL_DEFAULTS.questionAreaMargin, opacity: 1},
-            {height: '0px', margin: '0 .25rem 0 .25rem', opacity: 0},
+            {height: questionAreaStartHeight, opacity: 1},
+            {height: '0px', opacity: 0},
         ],{
             duration: 400,
             fill: 'forwards',
