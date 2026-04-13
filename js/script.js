@@ -388,6 +388,8 @@ const sourceElement  = document.getElementById('question-source');
 const remainingElement = document.getElementById('question-remaining');
 const questionArea = document.getElementById('question-area');
 const answerArea = document.getElementById('answer-area');
+const questionAreaVisual = document.getElementById('question-area-visual') || questionArea;
+const answerAreaVisual = document.getElementById('answer-area-visual') || answerArea;
 const keys = document.querySelectorAll('.key');
 const statItems = document.querySelectorAll('.stat-item');
 const keyboardContainer = document.getElementById('keyboard-container');
@@ -412,6 +414,8 @@ const hasGameScreenDom = Boolean(
     && sourceElement
     && questionArea
     && answerArea
+    && questionAreaVisual
+    && answerAreaVisual
     && keyboardContainer
 );
 
@@ -424,9 +428,7 @@ const SCREEN = {
 let currentScreen = SCREEN.START;
 
 const GAME_SCREEN_VISUAL_DEFAULTS = Object.freeze({
-    questionAreaHeight: '10.25rem',
-    questionAreaMargin: '0 .25rem 0 .25rem',
-    answerAreaHeight: '10.5rem',
+    answerAreaExpandedHeight: '21.375rem',
 });
 
 const cancelAnimationsOnElement = (element) => {
@@ -437,14 +439,21 @@ const cancelAnimationsOnElement = (element) => {
 };
 
 const normalizeGameScreenAnimatedStyles = () => {
-    questionArea.style.height = GAME_SCREEN_VISUAL_DEFAULTS.questionAreaHeight;
-    questionArea.style.margin = '';
+    questionArea.style.minHeight = '';
+    questionArea.style.height = '';
     questionArea.style.opacity = '1';
-    questionArea.style.transform = 'none';
 
-    answerArea.style.height = GAME_SCREEN_VISUAL_DEFAULTS.answerAreaHeight;
+    answerArea.style.minHeight = '';
+    answerArea.style.height = '';
     answerArea.style.opacity = '1';
-    answerArea.style.transform = 'none';
+
+    questionAreaVisual.style.opacity = '1';
+    questionAreaVisual.style.transform = 'none';
+    questionAreaVisual.style.transformOrigin = '';
+
+    answerAreaVisual.style.opacity = '1';
+    answerAreaVisual.style.transform = 'none';
+    answerAreaVisual.style.transformOrigin = '';
 
     inputElement.style.opacity = '1';
 
@@ -452,6 +461,35 @@ const normalizeGameScreenAnimatedStyles = () => {
         key.style.opacity = '1';
         key.style.transform = '';
     });
+};
+
+const getElementPixelHeight = (element) => {
+    const measuredHeight = element?.getBoundingClientRect?.().height;
+    if (Number.isFinite(measuredHeight) && measuredHeight >= 0) {
+        return `${measuredHeight}px`;
+    }
+    return '0px';
+};
+
+const resolveLengthToPixels = (lengthValue) => {
+    if (typeof lengthValue !== 'string') return null;
+    const normalized = lengthValue.trim();
+    if (!normalized) return null;
+
+    if (normalized.endsWith('px')) {
+        const px = Number.parseFloat(normalized);
+        return Number.isFinite(px) ? px : null;
+    }
+
+    if (normalized.endsWith('rem')) {
+        const rem = Number.parseFloat(normalized);
+        if (!Number.isFinite(rem)) return null;
+        const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+        const base = Number.isFinite(rootFontSize) ? rootFontSize : 16;
+        return rem * base;
+    }
+
+    return null;
 };
 
 const setVisibleScreen = (screen) => {
@@ -1185,7 +1223,15 @@ const resetGameScreenVisualState = (prepareForStart = false) => {
 
     cancelAnimationsOnElement(questionArea);
 
+    if (questionAreaVisual !== questionArea) {
+        cancelAnimationsOnElement(questionAreaVisual);
+    }
+
     cancelAnimationsOnElement(answerArea);
+
+    if (answerAreaVisual !== answerArea) {
+        cancelAnimationsOnElement(answerAreaVisual);
+    }
 
     keys.forEach((key) => {
         cancelAnimationsOnElement(key);
@@ -1984,23 +2030,49 @@ const showResults = (data) => {
             screen.style.transform = 'scale(1)';
         });
 
-        const questionAreaAnimation = trackAnimation(questionArea.animate([
-            {height: GAME_SCREEN_VISUAL_DEFAULTS.questionAreaHeight, margin: GAME_SCREEN_VISUAL_DEFAULTS.questionAreaMargin, opacity: 1},
-            {height: '0rem', margin: '0 .25rem 0 .25rem', opacity: 0},
-        ],{
-            duration: 400,
-            fill: 'forwards',
-            transformOrigin: 'top',
-        }), 'result:question-area');
+        const transitionDurationMs = 400;
+        const questionAreaStartHeightPx = Number.parseFloat(getElementPixelHeight(questionArea)) || 0;
+        const answerAreaStartHeightPx = Number.parseFloat(getElementPixelHeight(answerArea)) || 0;
+        const answerAreaTargetHeightPx = resolveLengthToPixels(GAME_SCREEN_VISUAL_DEFAULTS.answerAreaExpandedHeight)
+            ?? answerAreaStartHeightPx;
+        const safeAnswerAreaStartHeightPx = answerAreaStartHeightPx > 0 ? answerAreaStartHeightPx : 1;
+        const answerAreaScaleY = answerAreaTargetHeightPx / safeAnswerAreaStartHeightPx;
 
-        const answerAreaAnimation = trackAnimation(answerArea.animate([
-            {height: GAME_SCREEN_VISUAL_DEFAULTS.answerAreaHeight},
-            {height: '21.25rem'},
+        // レイアウトの再配置は outer 要素の height で制御する
+        questionArea.style.minHeight = '0px';
+        answerArea.style.minHeight = '0px';
+
+        const questionAreaLayoutAnimation = trackAnimation(questionArea.animate([
+            {height: `${questionAreaStartHeightPx}px`, opacity: 1},
+            {height: '0px', opacity: 0},
         ],{
-            duration: 400,
+            duration: transitionDurationMs,
             fill: 'forwards',
-            transformOrigin: 'bottom',
-        }), 'result:answer-area');
+        }), 'result:question-area-layout');
+
+        const answerAreaLayoutAnimation = trackAnimation(answerArea.animate([
+            {height: `${answerAreaStartHeightPx}px`},
+            {height: `${answerAreaTargetHeightPx}px`},
+        ],{
+            duration: transitionDurationMs,
+            fill: 'forwards',
+        }), 'result:answer-area-layout');
+
+        const questionAreaVisualAnimation = trackAnimation(questionAreaVisual.animate([
+            {transform: 'scaleY(1)', opacity: 1, transformOrigin: 'top'},
+            {transform: 'scaleY(0)', opacity: 0, transformOrigin: 'top'},
+        ],{
+            duration: transitionDurationMs,
+            fill: 'forwards',
+        }), 'result:question-area-visual');
+
+        const answerAreaVisualAnimation = trackAnimation(answerAreaVisual.animate([
+            {transform: 'scaleY(1)', transformOrigin: 'bottom'},
+            {transform: `scaleY(${answerAreaScaleY})`, transformOrigin: 'bottom'},
+        ],{
+            duration: transitionDurationMs,
+            fill: 'forwards',
+        }), 'result:answer-area-visual');
 
         keys.forEach((key, index) => {
             trackAnimation(key.animate([
@@ -2022,8 +2094,10 @@ const showResults = (data) => {
         }), 'result:input');
 
         Promise.allSettled([
-            questionAreaAnimation.finished,
-            answerAreaAnimation.finished,
+            questionAreaLayoutAnimation.finished,
+            answerAreaLayoutAnimation.finished,
+            questionAreaVisualAnimation.finished,
+            answerAreaVisualAnimation.finished,
         ]).then(() => {
             if (transitionToken !== resultTransitionToken || currentScreen !== SCREEN.GAME) {
                 return;

@@ -133,7 +133,7 @@ hr{
     /*設定画面*/
     .typing-contents{
         width: 51rem;
-        height: 31rem;
+        min-height: 31rem;
         background-color: var(--base-color-2);
         border-radius: 16px;
         padding: 0.25rem 1rem 0.25rem 1rem;
@@ -244,25 +244,29 @@ hr{
     }
 
     #question-area{
+        min-height: 10.25rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #question-area-visual,
+    #answer-area-visual{
+        width: 100%;
+        height: 100%;
         display: flex;
         flex-direction: column;
-        height: 10.25rem;
-        position: relative;
     }
 
     #question-remaining{
         position: absolute;
         right: 1.75rem;
         bottom: .25rem;
-        /* margin: 0;
-        padding: 0; */
     }
 
     #answer-area{
-        height: 10.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        min-height: 10.5rem;
+        justify-content: flex-start;
+        overflow: hidden;
     }
   
     .delay-screen{
@@ -391,7 +395,7 @@ hr{
         background-color: var(--base-color);
         margin: 0 .25rem 0 .25rem;
         width: 49rem;
-        height : 20.5rem;
+        height : 21.375rem;
         border-radius: 12px;
         display: flex;
         flex-direction: column;
@@ -406,6 +410,7 @@ hr{
         flex-direction: column;
         width: 100%;
         padding: 0 1rem .5rem 1rem;
+        gap: .5rem;
     }
 
     #result-chart{
@@ -625,8 +630,8 @@ hr{
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        gap: .75rem;
-        padding: .75rem 0 .75rem 0;
+        gap: .625rem;
+        padding: .625rem 0 .625rem 0;
     }
      
 /*注意書き*/
