@@ -15,8 +15,9 @@ Filtering/normalization rules:
 3. Normalize with NFKC
 4. Remove bracketed segments and residual brackets
 5. Exclude text containing "号"
-6. Exclude cross-reference-heavy text by mode
-7. Keep length in [50, 130]
+6. Exclude text with no hiragana
+7. Exclude cross-reference-heavy text by mode
+8. Keep length in [50, 130]
 """
 
 from __future__ import annotations
@@ -51,6 +52,7 @@ BRACKET_CHARS = "()（）[]［］{}｛｝「」『』〈〉《》【】"
 IGNORED_TEXT_TAGS = {"Rt"}
 REFERENCE_FILTER_MODES = ("none", "conservative", "balanced", "strict")
 KANJI_NUMBER_CHARS = "0-9一二三四五六七八九十百千〇零"
+HIRAGANA_RE = re.compile(r"[ぁ-ん]")
 
 PRIMARY_CROSS_REFERENCE_TERMS = (
     "前項",
@@ -161,6 +163,10 @@ def normalize_text(raw: str) -> str:
     text = re.sub(r"[、。]{2,}", lambda m: m.group(0)[0], text)
     text = text.strip("、。")
     return text
+
+
+def has_hiragana(text: str) -> bool:
+    return HIRAGANA_RE.search(text) is not None
 
 
 def has_item_descendant(article: ET.Element) -> bool:
@@ -310,6 +316,7 @@ def build_summary_template() -> Dict[str, int]:
         "filtered_empty": 0,
         "filtered_has_bracket": 0,
         "filtered_contains_go": 0,
+        "filtered_no_hiragana": 0,
         "filtered_cross_reference": 0,
         "filtered_cross_reference_primary": 0,
         "filtered_cross_reference_secondary": 0,
@@ -386,6 +393,11 @@ def main() -> int:
                     per_field[rec.field]["filtered_contains_go"] += 1
                     continue
 
+                if not has_hiragana(text):
+                    overall["filtered_no_hiragana"] += 1
+                    per_field[rec.field]["filtered_no_hiragana"] += 1
+                    continue
+
                 cross_ref_class = classify_cross_reference(text, args.reference_filter_mode)
                 if cross_ref_class is not None:
                     overall["filtered_cross_reference"] += 1
@@ -438,6 +450,8 @@ def main() -> int:
             "normalize_nfkc": True,
             "remove_bracket_contents": True,
             "remove_text_contains_go": True,
+            "require_hiragana": True,
+            "hiragana_regex": HIRAGANA_RE.pattern,
             "reference_filter_mode": args.reference_filter_mode,
             "reference_filter_terms": {
                 "primary": list(PRIMARY_CROSS_REFERENCE_TERMS),

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-08T14:07:45",
+  "generated_at": "2026-04-13T14:47:17",
   "input_json": "data/questions_step3_kana.json",
   "output_json": "data/questions.json",
   "required_keys": [
@@ -9,14 +9,14 @@
     "source"
   ],
   "summary": {
-    "input_count": 2844,
-    "output_count": 2844,
+    "input_count": 2731,
+    "output_count": 2731,
     "skipped_invalid": 0,
     "skipped_duplicate": 0,
     "per_field_counts": {
       "刑事訴訟法": 335,
       "刑法": 123,
-      "商法": 779,
+      "商法": 666,
       "憲法": 56,
       "民事訴訟法": 410,
       "民法": 665,
