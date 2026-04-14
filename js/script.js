@@ -43,6 +43,10 @@ const START_FIELD_TO_LABEL_MAP = Object.freeze({
 const ALL_START_FIELD_KEYS = Object.freeze(Object.keys(START_FIELD_TO_LABEL_MAP));
 const HISTORY_STORAGE_LIMIT = 100;
 const LAW_HISTORY_PAGE_SIZE = 10;
+const THEME_STORAGE_KEY = 'law_type_theme';
+const THEME_ATTRIBUTE_NAME = 'data-theme';
+const THEME_LIGHT = 'light';
+const THEME_DARK = 'dark';
 
 const animationTrackerLogger = {
     enabled: true,
@@ -400,6 +404,7 @@ const lawHistoryPaginationElement = document.getElementById('law-history-paginat
 const lawHistoryEmptyElement = document.getElementById('law-history-empty');
 const lawHistoryCardTemplate = document.getElementById('law-history-card-template');
 const navContainer = document.querySelector('.nav');
+const themeToggleInput = document.getElementById('theme-toggle');
 
 const hasGameScreenDom = Boolean(
     form
@@ -541,11 +546,91 @@ const filterQuestionsBySelectedFields = (questions, selectedFieldKeys) => {
 };
 
 // ====================================
+// 明暗モードの切り替え
+// ====================================
+
+const isValidTheme = (theme) => theme === THEME_LIGHT || theme === THEME_DARK;
+
+const getSystemTheme = () => {
+    if (typeof window.matchMedia !== 'function') {
+        return THEME_LIGHT;
+    }
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? THEME_DARK : THEME_LIGHT;
+};
+
+const getStoredTheme = () => {
+    try {
+        const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+        return isValidTheme(storedTheme) ? storedTheme : null;
+    } catch (error) {
+        console.warn('theme storage read error', error);
+        return null;
+    }
+};
+
+const saveTheme = (theme) => {
+    if (!isValidTheme(theme)) {
+        return;
+    }
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (error) {
+        console.warn('theme storage write error', error);
+    }
+};
+
+const applyTheme = (theme) => {
+    const nextTheme = isValidTheme(theme) ? theme : THEME_LIGHT;
+    document.documentElement.setAttribute(THEME_ATTRIBUTE_NAME, nextTheme);
+
+    if (themeToggleInput) {
+        themeToggleInput.checked = nextTheme === THEME_DARK;
+    }
+};
+
+const initializeThemeControl = () => {
+    const storedTheme = getStoredTheme();
+    const hasUserPreference = isValidTheme(storedTheme);
+    applyTheme(hasUserPreference ? storedTheme : getSystemTheme());
+
+    if (!themeToggleInput) {
+        return;
+    }
+
+    themeToggleInput.addEventListener('change', () => {
+        const selectedTheme = themeToggleInput.checked ? THEME_DARK : THEME_LIGHT;
+        applyTheme(selectedTheme);
+        saveTheme(selectedTheme);
+    });
+
+    if (hasUserPreference || typeof window.matchMedia !== 'function') {
+        return;
+    }
+
+    const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    console.log(systemThemeQuery);
+    const handleSystemThemeChange = (event) => {
+        if (getStoredTheme()) {
+            return;
+        }
+        applyTheme(event.matches ? THEME_DARK : THEME_LIGHT);
+    };
+
+    if (typeof systemThemeQuery.addEventListener === 'function') {
+        systemThemeQuery.addEventListener('change', handleSystemThemeChange);
+    } else if (typeof systemThemeQuery.addListener === 'function') {
+        systemThemeQuery.addListener(handleSystemThemeChange);
+    }
+};
+
+// ====================================
 // ページロード時の初期化
 // ====================================
 
 // ページ読み込み時に画面状態をリセット
 window.addEventListener('load', () => {
+    initializeThemeControl();
+
     const allHistory = getStoredHistoryAll();
     displaySideStats(allHistory);
     renderLawHistory(getStoredHistoryForDisplay(allHistory), 1);

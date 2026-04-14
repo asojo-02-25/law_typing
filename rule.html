@@ -18,6 +18,29 @@
         <meta name="twitter:title" content="利用規約 - law_type">
         <meta name="twitter:description" content="law_typeの利用規約ページです。司法試験受験生向けタイピング練習サイトの利用条件、禁止事項、免責事項、著作権、規約変更に関する方針を掲載しています。">
         <meta name="twitter:image" content="images/favicon/favicon-96x96.png">
+        <script>
+            (() => {
+                const THEME_STORAGE_KEY = 'law_type_theme';
+                const getSystemTheme = () => (
+                    typeof window.matchMedia === 'function'
+                    && window.matchMedia('(prefers-color-scheme: dark)').matches
+                        ? 'dark'
+                        : 'light'
+                );
+
+                let storedTheme = null;
+                try {
+                    const candidateTheme = localStorage.getItem(THEME_STORAGE_KEY);
+                    if (candidateTheme === 'dark' || candidateTheme === 'light') {
+                        storedTheme = candidateTheme;
+                    }
+                } catch (error) {
+                    storedTheme = null;
+                }
+
+                document.documentElement.setAttribute('data-theme', storedTheme || getSystemTheme());
+            })();
+        </script>
         <!--リセットcss-->
         <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
         <!--オリジナルcss-->
@@ -43,6 +66,13 @@
                     &nbsp;<a href="index.html" class="nav-home-link"><span>ホーム</span></a>
                     &nbsp;<span>|</span>
                     &nbsp;<a href="index.html?screen=results" class="nav-results-link"><span>結果画面</span></a>
+                    <div class="theme-toggle">
+                        <span class="theme-toggle-text font-small">Dark</span>
+                        <label class="theme-toggle-switch" for="theme-toggle">
+                            <input type="checkbox" id="theme-toggle" class="theme-toggle-input" aria-label="ダークモード切り替え">
+                            <span class="theme-toggle-slider"></span>
+                        </label>
+                    </div>
                     <!-- <a href="#" class="nav-setting-link"><img src="images/header_icon.png" alt="settings" class="icon"><span>設定</span></a>  -->
                 </div>
             </nav>

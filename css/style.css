@@ -11,6 +11,27 @@
     --font-gray: #5c5e64;
     --font-black: #1f2937;
     --font-white: #ffffff;
+    --button-hover-color: #1a60d6;
+    --error-color: #c53030;
+}
+
+html{
+    color-scheme: light;
+}
+
+html[data-theme="dark"]{
+    color-scheme: dark;
+    --base-color: #0f172a;
+    --base-color-2: #1e293b;
+    --main-color: #60a5fa;
+    --accent-color: #f59e0b;
+    --accent-color-2: #64748b;
+    --accent-color-3: #020617;
+    --font-gray: #cbd5e1;
+    --font-black: #e2e8f0;
+    --font-white: #ffffff;
+    --button-hover-color: #3b82f6;
+    --error-color: #f87171;
 }
 
 body{
@@ -121,6 +142,73 @@ hr{
     gap: .5rem;
 }
 
+.theme-toggle{
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.theme-toggle-text{
+    color: var(--font-gray);
+    font-weight: bold;
+}
+
+.theme-toggle-switch{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 1.5rem;
+    cursor: pointer;
+    position: relative;
+    border: none;
+    background-color: transparent;
+}
+
+.theme-toggle-input{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    border: 0;
+    white-space: nowrap;
+}
+
+.theme-toggle-slider{
+    display: block;
+    width: 100%;
+    height: 100%;
+    background-color: var(--accent-color-2);
+    border-radius: 999px;
+    transition: background-color .2s ease;
+    position: relative;
+}
+
+.theme-toggle-slider::before{
+    content: '';
+    position: absolute;
+    top: 0.175rem;
+    left: 0.175rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    background-color: var(--font-white);
+    transform: translateX(0);
+    transition: transform .2s ease;
+}
+
+.theme-toggle-input:checked + .theme-toggle-slider{
+    background-color: var(--main-color);
+}
+
+.theme-toggle-input:checked + .theme-toggle-slider::before{
+    transform: translateX(1.25rem);
+}
+
 /*メインコンテンツ*/
 .main-flex{
     display: flex;
@@ -203,13 +291,13 @@ hr{
     }
 
     #start-button:hover{
-        background-color: #1a60d6;
+        background-color: var(--button-hover-color);
     }
 
     .form-error-message{
         min-height: 1.5rem;
         margin: 0 0 .25rem 0;
-        color: #c53030;
+        color: var(--error-color);
     }
     
     /*ゲーム画面*/
