@@ -1849,10 +1849,10 @@ const finishGame = () => {
 
     // 画面表示の更新
     charGuideElement.textContent = '';
-    charGuideElement.style.display = 'none';
+    charGuideElement.textContent = 'finish!';
     guideElement.textContent = '';
     guideElement.style.display = 'none';
-    document.querySelector('#charGuideElement').textContent = 'finish!';
+    inputElement.style.display = 'none';
     document.querySelectorAll('.key.active').forEach((keys) => {
         keys.classList.remove('active');
     });
@@ -2259,8 +2259,9 @@ const resetGame = () => {
     charGuideElement.textContent = '';
     charGuideElement.style.display = '';
     guideElement.textContent = '';    
-    inputElement.textContent = '';
     guideElement.style.display = 'none';
+    inputElement.textContent = '';
+    inputElement.style.display = '';
     fieldElement.textContent = '';
     sourceElement.textContent = '';
     keyboardContainer.style.visibility = 'visible';
