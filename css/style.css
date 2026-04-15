@@ -21,17 +21,17 @@ html{
 
 html[data-theme="dark"]{
     color-scheme: dark;
-    --base-color: #0f172a;
-    --base-color-2: #1e293b;
+    --base-color: #16181b;
+    --base-color-2: #23262b;
     --main-color: #60a5fa;
-    --accent-color: #f59e0b;
-    --accent-color-2: #64748b;
+    --accent-color: #c893fb;
+    --accent-color-2: #424a56;
     --accent-color-3: #020617;
-    --font-gray: #cbd5e1;
+    --font-gray: #d2dae3;
     --font-black: #e2e8f0;
     --font-white: #ffffff;
     --button-hover-color: #3b82f6;
-    --error-color: #f87171;
+    --error-color: #c53030;
 }
 
 body{
@@ -242,7 +242,7 @@ hr{
         background-color: var(--base-color);
         border-radius: 12px;
         padding: 1rem 0 1rem 0;
-        margin: 0 0 1rem 0;
+        margin: 0 0 .5rem 0;
     }
 
     .form-question-number{
@@ -286,6 +286,7 @@ hr{
         background-color: var(--main-color);
         border-radius: 8px;
         padding: 0.5rem 2rem 0.5rem 2rem;
+        margin: .5rem 0 .5rem 0;
         cursor: pointer;
         box-shadow: 0 0 .5rem rgba(0,0,0,0.1), 0 0 1.5rem rgba(0,0,0,0.05);
     }
@@ -296,7 +297,7 @@ hr{
 
     .form-error-message{
         min-height: 1.5rem;
-        margin: 0 0 .25rem 0;
+        /* margin: 0 0 .25rem 0; */
         color: var(--error-color);
     }
     

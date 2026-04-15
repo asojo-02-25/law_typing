@@ -1962,7 +1962,7 @@ const drawResultChart = (history = getStoredHistoryAll()) => {
                     position: 'left',
                     // beginAtZero: false,
                     suggestedMax: Math.max(...wpmData, 0) + 1,
-                    grid: { color: "#e9f1fd"},
+                    grid: { display: false },
                 },
                 y1: {
                     type: 'linear',
