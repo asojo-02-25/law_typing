@@ -43,6 +43,7 @@ const START_FIELD_TO_LABEL_MAP = Object.freeze({
 const ALL_START_FIELD_KEYS = Object.freeze(Object.keys(START_FIELD_TO_LABEL_MAP));
 const HISTORY_STORAGE_LIMIT = 100;
 const LAW_HISTORY_PAGE_SIZE = 10;
+const CUMULATIVE_WEAK_KEY_DISPLAY_LIMIT = 3;
 const THEME_STORAGE_KEY = 'law_type_theme';
 const THEME_ATTRIBUTE_NAME = 'data-theme';
 const THEME_LIGHT = 'light';
@@ -1010,7 +1011,7 @@ const computeHistoryMetrics = (history) => {
     const currentWpms = pickWindow(now - 7 * DAY, now);
     const currentAvgWpm = toAvg(currentWpms);
 
-    // 履歴内で最も出現回数が多い苦手キーを算出（同率はカンマ区切り）
+    // 履歴内で出現回数が多い苦手キー上位3件を算出（同率はキー文字列順）
     const weakKeyCountMap = {};
     safeHistory.forEach((item) => {
         if (typeof item.weakKey !== 'string' || item.weakKey.length === 0 || item.weakKey === '特になし') {
@@ -1029,12 +1030,17 @@ const computeHistoryMetrics = (history) => {
     let cumulativeWeakKeys = '特になし';
     const weakKeyEntries = Object.entries(weakKeyCountMap);
     if (weakKeyEntries.length > 0) {
-        const maxWeakKeyCount = Math.max(...weakKeyEntries.map(([, value]) => value));
         cumulativeWeakKeys = weakKeyEntries
-            .filter(([, value]) => value === maxWeakKeyCount)
+            .sort((a, b) => {
+                const countDiff = b[1] - a[1];
+                if (countDiff !== 0) {
+                    return countDiff;
+                }
+                return a[0].localeCompare(b[0]);
+            })
+            .slice(0, CUMULATIVE_WEAK_KEY_DISPLAY_LIMIT)
             .map(([key]) => key)
-            .sort((a, b) => a.localeCompare(b))
-            .join(',');
+            .join(', ');
     }
 
     return {
