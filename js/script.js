@@ -2004,7 +2004,7 @@ const drawResultChart = (history = getStoredHistoryAll()) => {
                                 item.pointStyle = 'line';
                                 item.lineWidth  = 2;
                             });
-                            return items;
+                            return items.reverse();
                         },
                     }
                 },
