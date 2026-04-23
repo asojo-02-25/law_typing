@@ -221,7 +221,7 @@ hr{
     /*設定画面*/
     .typing-contents{
         width: 51rem;
-        min-height: 31rem;
+        height: 31rem;
         background-color: var(--base-color-2);
         border-radius: 16px;
         padding: 0 1rem 0 1rem;
