@@ -790,7 +790,8 @@ const buildCombinedLawHistoryEntries = (history = getStoredHistoryForDisplay()) 
         }))
         .filter((item) => item.text.length > 0);
 
-    return [...runtimeEntries, ...persistedEntries];
+        const combined = [...runtimeEntries, ...persistedEntries];
+        return combined.slice(0, HISTORY_STORAGE_LIMIT);
 };
 
 const createLawHistoryCardElement = (entry) => {
