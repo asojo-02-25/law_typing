@@ -118,6 +118,10 @@ hr{
     user-select: none;
 }
 
+.hidden{
+    display: none;
+}
+
 /* ヘッダー&ナビゲーションメニュー */
 /* .header-flex{
     display: flex;
@@ -552,6 +556,9 @@ hr{
         justify-content: center;
         flex-wrap: wrap;
         gap: .375rem;
+        padding: 0;
+        margin: 0;
+        border: none;
     }
 
     .result-period-selector input[type="radio"]{
@@ -753,7 +760,8 @@ article{
 
 /*サイドコンテンツ*/
 .aside-data-container{
-    width: 18rem;
+    min-width: 18rem;
+    max-width: 20rem;
     align-self: flex-start;
     min-width: 0;
     flex-shrink: 1;
