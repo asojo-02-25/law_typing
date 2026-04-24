@@ -229,7 +229,7 @@ python scripts/finalize_questions_step4.py --fail-on-unknown-sokuon
   - ログインしたプレイヤー間でのランキング導入
 - データ分析の進化
   - プレイした日、その日プレイした問題数の大小を一覧で確認可能に
-	- GitHub の草のイメージ
+  - GitHub の草のイメージ
 
 ## データと外部ライブラリについて
 
