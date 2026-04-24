@@ -94,6 +94,9 @@ CUSTOM_READING_MAP: Dict[str, str] = {
     "譲渡会社": "じょうとがいしゃ",
     "公開会社": "こうかいがいしゃ",
     "分割会社": "ぶんかつがいしゃ",
+    "長い": "ながい",
+    "長く": "ながく",
+    "長": "ちょう",
 }
 
 CUSTOM_READING_TERMS: Tuple[str, ...] = tuple(sorted(CUSTOM_READING_MAP.keys(), key=len, reverse=True))
