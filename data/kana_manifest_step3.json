@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-22T22:30:36",
+  "generated_at": "2026-04-24T12:27:25",
   "input_json": "data/normalized_questions_step2.json",
   "output_json": "data/questions_step3_kana.json",
   "rules": {
@@ -41,7 +41,10 @@
       "荷送人": "におくりにん",
       "招状": "しょうじょう",
       "併存的債務引受": "へいぞんてきさいむひきうけ",
-      "若しくは": "もしくは"
+      "若しくは": "もしくは",
+      "何人": "なんぴと",
+      "第一項": "だいいっこう",
+      "日本": "にほん"
     },
     "converter": "sudachipy",
     "dictionary": "sudachidict_full",
@@ -64,7 +67,7 @@
     "input_count": 2731,
     "output_count": 2731,
     "skipped_invalid": 0,
-    "custom_reading_hits_total": 799,
+    "custom_reading_hits_total": 1059,
     "custom_reading_hits_by_term": {
       "遺言": 78,
       "競売": 46,
@@ -102,7 +105,10 @@
       "荷送人": 16,
       "招状": 1,
       "併存的債務引受": 4,
-      "若しくは": 342
+      "若しくは": 342,
+      "何人": 12,
+      "第一項": 193,
+      "日本": 55
     }
   }
 }
