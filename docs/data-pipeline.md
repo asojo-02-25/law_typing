@@ -1,10 +1,10 @@
 # Data Pipeline (Step 1-4)
 
-このドキュメントは、法令データを出題用JSONへ変換する処理フローの詳細です。
+このドキュメントは、法令データを出題用JSONへ変換する処理フローの詳細である。
 
 ## 前提
 
-- Python環境を作成して依存パッケージをインストール済みであること
+- Python環境を作成して依存パッケージをインストール済みであること。
 
 ```powershell
 py -3 -m venv .venv
@@ -158,6 +158,5 @@ python scripts/finalize_questions_step4.py --fail-on-unknown-sokuon
 
 ## 注意点
 
-- `xml_raw/` は `.gitignore` に含まれています
-- 大きな生データをリポジトリに含めない運用を想定しています
-- API仕様変更時はStep1の取得ロジック見直しが必要です
+- `xml_raw/` は `.gitignore` に含まれ、大きな生データをリポジトリに含めない運用を想定。
+- API仕様変更時はStep1の取得ロジック見直しが必要。
