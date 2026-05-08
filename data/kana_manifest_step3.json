@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-24T13:32:05",
+  "generated_at": "2026-05-08T20:30:45",
   "input_json": "data/normalized_questions_step2.json",
   "output_json": "data/questions_step3_kana.json",
   "rules": {
@@ -58,7 +58,11 @@
       "外国会社": "がいこくがいしゃ",
       "譲渡会社": "じょうとがいしゃ",
       "公開会社": "こうかいがいしゃ",
-      "分割会社": "ぶんかつがいしゃ"
+      "分割会社": "ぶんかつがいしゃ",
+      "長い": "ながい",
+      "長く": "ながく",
+      "長": "ちょう",
+      "町村": "ちょうそん"
     },
     "converter": "sudachipy",
     "dictionary": "sudachidict_full",
@@ -81,7 +85,7 @@
     "input_count": 2731,
     "output_count": 2731,
     "skipped_invalid": 0,
-    "custom_reading_hits_total": 1276,
+    "custom_reading_hits_total": 1622,
     "custom_reading_hits_by_term": {
       "遺言": 78,
       "競売": 46,
@@ -136,7 +140,11 @@
       "外国会社": 12,
       "譲渡会社": 5,
       "公開会社": 3,
-      "分割会社": 3
+      "分割会社": 3,
+      "長い": 6,
+      "長く": 2,
+      "長": 260,
+      "町村": 78
     }
   }
 }
