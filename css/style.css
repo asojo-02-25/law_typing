@@ -37,6 +37,7 @@ html[data-theme="dark"]{
 body{
     font-size: 100%;
     background-color: var(--base-color);
+    font-family: "Noto Sans JP", "Noto Sans", sans-serif;
 }
 
 h1{
