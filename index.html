@@ -51,7 +51,7 @@
         <!--google font-->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Sans:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet">
         <!--ファビコン-->
         <link rel="icon" type="image/png" href="images/favicon/favicon-96x96.png" sizes="96x96" />
         <link rel="icon" type="image/svg+xml" href="images/favicon/favicon.svg" />
@@ -61,256 +61,318 @@
     </head>
 
     <body>
-        <div class="header-flex"> 
-            <nav class="nav">
-                <div class="nav-flex none-select">
-                    &nbsp;<a href="#" class="nav-home-link"><span>ホーム</span></a>
-                    &nbsp;<span>|</span>
-                    &nbsp;<a href="#" class="nav-results-link"><span>結果画面</span></a>
-                    <div class="theme-toggle">
-                        <span class="theme-toggle-text font-small">Dark</span>
-                        <label class="theme-toggle-switch" for="theme-toggle">
-                            <input type="checkbox" id="theme-toggle" class="theme-toggle-input" aria-label="ダークモード切り替え">
-                            <span class="theme-toggle-slider"></span>
-                        </label>
+        <div class="desktop">
+            <div class="header-flex"> 
+                <nav class="nav">
+                    <div class="nav-flex none-select">
+                        &nbsp;<a href="#" class="nav-home-link"><span>ホーム</span></a>
+                        &nbsp;<span>|</span>
+                        &nbsp;<a href="#" class="nav-results-link"><span>結果画面</span></a>
+                        <div class="theme-toggle">
+                            <span class="theme-toggle-text font-small">Dark</span>
+                            <label class="theme-toggle-switch" for="theme-toggle">
+                                <input type="checkbox" id="theme-toggle" class="theme-toggle-input" aria-label="ダークモード切り替え">
+                                <span class="theme-toggle-slider"></span>
+                            </label>
+                        </div>
                     </div>
-                </div>
-            </nav>
-        </div>
+                </nav>
+            </div>
 
-        <div class="main-flex">
-            <main class="main-contents">
-                <!--1. スタート画面-->
-                <section class="typing-contents none-select" id="start-screen">
-                    <form id="form">
-                        <h1 class="title">law_typing - 司法試験特化型タイピング練習サイト -</h1>
-                        <div class="form-flex">
-                            <div class="form-question-number">
-                                <p>問題数</p>
-                                <input type="radio" name="itemcounts" value="1" id="one" checked><label for="one">1問</label></input></br>
-                                <input type="radio" name="itemcounts" value="2" id="two"><label for="two">2問</label></input></br>
-                                <input type="radio" name="itemcounts" value="3" id="three"><label for="three">3問</label></input></br>
-                                <input type="radio" name="itemcounts" value="5" id="five"><label for="five">5問</label></input></br>
-                                <input type="radio" name="itemcounts" value="10" id="ten"><label for="ten">10問</label></input></br>
+            <div class="main-flex">
+                <main class="main-contents">
+                    <!--1. スタート画面-->
+                    <section class="typing-contents none-select" id="start-screen">
+                        <form id="form">
+                            <h1 class="title">law_typing - 司法試験特化型タイピング練習サイト -</h1>
+                            <div class="form-flex">
+                                <div class="form-question-number">
+                                    <p>問題数</p>
+                                    <input type="radio" name="itemcounts" value="1" id="one" checked><label for="one">1問</label></input></br>
+                                    <input type="radio" name="itemcounts" value="2" id="two"><label for="two">2問</label></input></br>
+                                    <input type="radio" name="itemcounts" value="3" id="three"><label for="three">3問</label></input></br>
+                                    <input type="radio" name="itemcounts" value="5" id="five"><label for="five">5問</label></input></br>
+                                    <input type="radio" name="itemcounts" value="10" id="ten"><label for="ten">10問</label></input></br>
+                                </div>
+                                <div class="left">
+                                    <p class="center">分野</p>
+                                    <input type="checkbox" name="field" value="constitutional" id="constitutional-law" checked><label for="constitutional-law">憲法</label></br>  
+                                    <input type="checkbox" name="field" value="administrative" id="administrative-law" checked><label for="administrative-law">行政法</label></br>
+                                    <input type="checkbox" name="field" value="civil" id="civil-law" checked><label for="civil-law">民法</label></br>
+                                    <input type="checkbox" name="field" value="commercial" id="commercial-law" checked><label for="commercial-law">商法</label></br>
+                                    <input type="checkbox" name="field" value="civil_procedure" id="civil-procedure-law" checked><label for="civil-procedure-law">民事訴訟法</label></br>
+                                    <input type="checkbox" name="field" value="criminal" id="criminal-law" checked><label for="criminal-law">刑法</label></br>
+                                    <input type="checkbox" name="field" value="criminal_procedure" id="criminal-procedure-law" checked><label for="criminal-procedure-law">刑事訴訟法</label></br>
+                                </div>
+                                <div class="left">
+                                    <p class="center">設定</p>
+                                    <input type="checkbox" name="setting" value="keyboard-represent" id="keyboard" checked><label for="keyboard">キーボード表示</label></br>
+                                </div>
                             </div>
-                            <div class="left">
-                                <p class="center">分野</p>
-                                <input type="checkbox" name="field" value="constitutional" id="constitutional-law" checked><label for="constitutional-law">憲法</label></br>  
-                                <input type="checkbox" name="field" value="administrative" id="administrative-law" checked><label for="administrative-law">行政法</label></br>
-                                <input type="checkbox" name="field" value="civil" id="civil-law" checked><label for="civil-law">民法</label></br>
-                                <input type="checkbox" name="field" value="commercial" id="commercial-law" checked><label for="commercial-law">商法</label></br>
-                                <input type="checkbox" name="field" value="civil_procedure" id="civil-procedure-law" checked><label for="civil-procedure-law">民事訴訟法</label></br>
-                                <input type="checkbox" name="field" value="criminal" id="criminal-law" checked><label for="criminal-law">刑法</label></br>
-                                <input type="checkbox" name="field" value="criminal_procedure" id="criminal-procedure-law" checked><label for="criminal-procedure-law">刑事訴訟法</label></br>
+                            <div>
+                                <p id="start-error-message" class="form-error-message font-middle font-bold"></p>
+                                <input type="submit" value="ゲームスタート" id="start-button" class="font-white font-bold">
+                                <p><span>Spaceキー</span> : スタート</p>
+                                <p><span>Escキー</span> : この画面に戻る</p>
                             </div>
-                            <div class="left">
-                                <p class="center">設定</p>
-                                <input type="checkbox" name="setting" value="keyboard-represent" id="keyboard" checked><label for="keyboard">キーボード表示</label></br>
+                        </form>
+                    </section>
+                    <!--2. ゲーム画面-->
+                    <section class="typing-contents none-select" id="game-screen">
+                        <div id="question-area" class="game-area delay-screen">  
+                            <div id="question-area-visual" class="area-visual">
+                                <div class="question-info">
+                                    <p class="font-small font-bold">分野 : <span id="question-field" class="info-badge font-small font-white"></span></p>
+                                    <p class="font-small font-bold">出典 : <span id="question-source" class="info-text font-small"></span></p>
+                                </div>
+                                <p id="question-text" class="font-bold"></p>
+                                <p id="question-remaining" class="font-small font-bold right"></p>
                             </div>
                         </div>
-                        <div>
-                            <p id="start-error-message" class="form-error-message font-middle font-bold"></p>
-                            <input type="submit" value="ゲームスタート" id="start-button" class="font-white font-bold">
-                            <p><span>Spaceキー</span> : スタート</p>
-                            <p><span>Escキー</span> : この画面に戻る</p>
-                        </div>
-                    </form>
-                </section>
-                <!--2. ゲーム画面-->
-                <section class="typing-contents none-select" id="game-screen">
-                    <div id="question-area" class="game-area delay-screen">  
-                        <div id="question-area-visual" class="area-visual">
-                            <div class="question-info">
-                                <p class="font-small font-bold">分野 : <span id="question-field" class="info-badge font-small font-white"></span></p>
-                                <p class="font-small font-bold">出典 : <span id="question-source" class="info-text font-small"></span></p>
+                        <div id="answer-area" class="game-area delay-screen">
+                            <div id="answer-area-visual" class="area-visual">
+                                <p id="current-char-guide" class="font-bold"></p>
+                                <p id="current-guide" class="font-middle"></p>
+                                <p id="user-input" class="font-middle"></p>
                             </div>
-                            <p id="question-text" class="font-bold"></p>
-                            <p id="question-remaining" class="font-small font-bold right"></p>
                         </div>
-                    </div>
-                    <div id="answer-area" class="game-area delay-screen">
-                        <div id="answer-area-visual" class="area-visual">
-                            <p id="current-char-guide" class="font-bold"></p>
-                            <p id="current-guide" class="font-middle"></p>
-                            <p id="user-input" class="font-middle"></p>
+                        <div class="game-area" id="keyboard-container">
+                            <!--1行目-->
+                            <div class="key normal"></div> 
+                            <div class="key normal" id="1"><span>1</span></div>
+                            <div class="key normal" id="2"><span>2</span></div>
+                            <div class="key normal" id="3"><span>3</span></div>
+                            <div class="key normal" id="4"><span>4</span></div>
+                            <div class="key normal" id="5"><span>5</span></div>
+                            <div class="key normal" id="6"><span>6</span></div>
+                            <div class="key normal" id="7"><span>7</span></div>
+                            <div class="key normal" id="8"><span>8</span></div>
+                            <div class="key normal" id="9"><span>9</span></div>
+                            <div class="key normal" id="0"><span>0</span></div>
+                            <div class="key normal" id="Minus"><span>-</span></div>
+                            <div class="key normal" id="Caret"><span>^</span></div>
+                            <div class="key normal" id="Yen"><span>¥</span></div>
+                            <div class="key normal" id="Backspace"><span>BS</span></div>
+                            <!--2行目-->
+                            <div class="key middle"></div>
+                            <div class="key normal" id="Q"><span>Q</span></div>
+                            <div class="key normal" id="W"><span>W</span></div>
+                            <div class="key normal" id="E"><span>E</span></div>
+                            <div class="key normal" id="R"><span>R</span></div>
+                            <div class="key normal" id="T"><span>T</span></div>
+                            <div class="key normal" id="Y"><span>Y</span></div>
+                            <div class="key normal" id="U"><span>U</span></div>
+                            <div class="key normal" id="I"><span>I</span></div>
+                            <div class="key normal" id="O"><span>O</span></div>
+                            <div class="key normal" id="P"><span>P</span></div>
+                            <div class="key normal" id="AtMark"><span>@</span></div>
+                            <div class="key normal" id="BracketLeft"><span>[</span></div>
+                            <div class="key enter-top"></div>
+                            <!--3行目-->
+                            <div class="key wide" id="CapsLock"></div>
+                            <div class="key normal" id="A"><span>A</span></div>
+                            <div class="key normal" id="S"><span>S</span></div>
+                            <div class="key normal" id="D"><span>D</span></div>
+                            <div class="key normal" id="F"><span>F</span></div>
+                            <div class="key normal" id="G"><span>G</span></div>
+                            <div class="key normal" id="H"><span>H</span></div>
+                            <div class="key normal" id="J"><span>J</span></div>
+                            <div class="key normal" id="K"><span>K</span></div>
+                            <div class="key normal" id="L"><span>L</span></div>
+                            <div class="key normal" id="Semicolon"><span>;</span></div>
+                            <div class="key normal" id="Colon"><span>:</span></div>
+                            <div class="key normal" id="BracketRight"><span>]</span></div>
+                            <div class="key enter-bottom" id="Enter"><span>Enter</span></div>
+                            <!--4行目-->
+                            <div class="key shift" id="ShiftLeft"><span>Shift</span></div>
+                            <div class="key normal" id="Z"><span>Z</span></div>
+                            <div class="key normal" id="X"><span>X</span></div>
+                            <div class="key normal" id="C"><span>C</span></div>
+                            <div class="key normal" id="V"><span>V</span></div>
+                            <div class="key normal" id="B"><span>B</span></div>
+                            <div class="key normal" id="N"><span>N</span></div>
+                            <div class="key normal" id="M"><span>M</span></div>
+                            <div class="key normal" id="Comma"><span>,</span></div>
+                            <div class="key normal" id="Period"><span>.</span></div>
+                            <div class="key normal" id="Slash"><span>/</span></div>
+                            <div class="key normal" id="Backslash"><span>\</span></div>
+                            <div class="key shift" id="ShiftRight"><span>Shift</span></div>
                         </div>
-                    </div>
-                    <div class="game-area" id="keyboard-container">
-                        <!--1行目-->
-                        <div class="key normal"></div> 
-                        <div class="key normal" id="1"><span>1</span></div>
-                        <div class="key normal" id="2"><span>2</span></div>
-                        <div class="key normal" id="3"><span>3</span></div>
-                        <div class="key normal" id="4"><span>4</span></div>
-                        <div class="key normal" id="5"><span>5</span></div>
-                        <div class="key normal" id="6"><span>6</span></div>
-                        <div class="key normal" id="7"><span>7</span></div>
-                        <div class="key normal" id="8"><span>8</span></div>
-                        <div class="key normal" id="9"><span>9</span></div>
-                        <div class="key normal" id="0"><span>0</span></div>
-                        <div class="key normal" id="Minus"><span>-</span></div>
-                        <div class="key normal" id="Caret"><span>^</span></div>
-                        <div class="key normal" id="Yen"><span>¥</span></div>
-                        <div class="key normal" id="Backspace"><span>BS</span></div>
-                        <!--2行目-->
-                        <div class="key middle"></div>
-                        <div class="key normal" id="Q"><span>Q</span></div>
-                        <div class="key normal" id="W"><span>W</span></div>
-                        <div class="key normal" id="E"><span>E</span></div>
-                        <div class="key normal" id="R"><span>R</span></div>
-                        <div class="key normal" id="T"><span>T</span></div>
-                        <div class="key normal" id="Y"><span>Y</span></div>
-                        <div class="key normal" id="U"><span>U</span></div>
-                        <div class="key normal" id="I"><span>I</span></div>
-                        <div class="key normal" id="O"><span>O</span></div>
-                        <div class="key normal" id="P"><span>P</span></div>
-                        <div class="key normal" id="AtMark"><span>@</span></div>
-                        <div class="key normal" id="BracketLeft"><span>[</span></div>
-                        <div class="key enter-top"></div>
-                        <!--3行目-->
-                        <div class="key wide" id="CapsLock"></div>
-                        <div class="key normal" id="A"><span>A</span></div>
-                        <div class="key normal" id="S"><span>S</span></div>
-                        <div class="key normal" id="D"><span>D</span></div>
-                        <div class="key normal" id="F"><span>F</span></div>
-                        <div class="key normal" id="G"><span>G</span></div>
-                        <div class="key normal" id="H"><span>H</span></div>
-                        <div class="key normal" id="J"><span>J</span></div>
-                        <div class="key normal" id="K"><span>K</span></div>
-                        <div class="key normal" id="L"><span>L</span></div>
-                        <div class="key normal" id="Semicolon"><span>;</span></div>
-                        <div class="key normal" id="Colon"><span>:</span></div>
-                        <div class="key normal" id="BracketRight"><span>]</span></div>
-                        <div class="key enter-bottom" id="Enter"><span>Enter</span></div>
-                        <!--4行目-->
-                        <div class="key shift" id="ShiftLeft"><span>Shift</span></div>
-                        <div class="key normal" id="Z"><span>Z</span></div>
-                        <div class="key normal" id="X"><span>X</span></div>
-                        <div class="key normal" id="C"><span>C</span></div>
-                        <div class="key normal" id="V"><span>V</span></div>
-                        <div class="key normal" id="B"><span>B</span></div>
-                        <div class="key normal" id="N"><span>N</span></div>
-                        <div class="key normal" id="M"><span>M</span></div>
-                        <div class="key normal" id="Comma"><span>,</span></div>
-                        <div class="key normal" id="Period"><span>.</span></div>
-                        <div class="key normal" id="Slash"><span>/</span></div>
-                        <div class="key normal" id="Backslash"><span>\</span></div>
-                        <div class="key shift" id="ShiftRight"><span>Shift</span></div>
-                    </div>
-                </section>
+                    </section>
 
-                <!--結果画面-->
-                <section class="typing-contents none-select" id="results-screen">
-                    <div class="result-graph-area">
-                        <h1 class="center"><span class="result-title-with-help font-black"><span class="stat-help-anchor result-title-help" data-tooltip="keys/秒 < 2 または正タイプ率 < 70% のデータは正常にプレイが行われていないとみなし履歴・グラフ・平均から除外されます。" aria-label="外れ値除外について">?</span>結果</span></h1>
-                        <div class="result-graph-wrapper">
-                            <canvas id="result-chart" aria-label="結果グラフ"></canvas>
-                            <fieldset class="result-period-selector font-middle" aria-label="グラフ表示期間">
-                                <legend class="hidden">グラフ表示期間</legend>
-                                
-                                <input type="radio" name="result-period" value="all" id="result-period-all" checked><label for="result-period-all">全期間</label>
-                                <input type="radio" name="result-period" value="500" id="result-period-500"><label for="result-period-500">直近500回</label>
-                                <input type="radio" name="result-period" value="100" id="result-period-100"><label for="result-period-100">直近100回</label>
-                                <input type="radio" name="result-period" value="50" id="result-period-50"><label for="result-period-50">直近50回</label>
-                            </fieldset>
-                            <p class="result-guide center font-small">Space : 同じ設定でリトライ           Esc : スタート画面に戻る</p>
+                    <!--結果画面-->
+                    <section class="typing-contents none-select" id="results-screen">
+                        <div class="result-graph-area">
+                            <h1 class="center"><span class="result-title-with-help font-black"><span class="stat-help-anchor result-title-help" data-tooltip="keys/秒 < 2 または正タイプ率 < 70% のデータは正常にプレイが行われていないとみなし履歴・グラフ・平均から除外されます。" aria-label="外れ値除外について">?</span>結果</span></h1>
+                            <div class="result-graph-wrapper">
+                                <canvas id="result-chart" aria-label="結果グラフ"></canvas>
+                                <fieldset class="result-period-selector font-middle" aria-label="グラフ表示期間">
+                                    <legend class="hidden">グラフ表示期間</legend>
+                                    
+                                    <input type="radio" name="result-period" value="all" id="result-period-all" checked><label for="result-period-all">全期間</label>
+                                    <input type="radio" name="result-period" value="500" id="result-period-500"><label for="result-period-500">直近500回</label>
+                                    <input type="radio" name="result-period" value="100" id="result-period-100"><label for="result-period-100">直近100回</label>
+                                    <input type="radio" name="result-period" value="50" id="result-period-50"><label for="result-period-50">直近50回</label>
+                                </fieldset>
+                                <p class="result-guide center font-small">Space : 同じ設定でリトライ           Esc : スタート画面に戻る</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="result-data-area">
-                        <!-- 数値データ（元keyboard-container相当） -->
-                        <p class="stat-item upper font-middle">
-                            <span class="stat-label-with-help">
-                                <span class="stat-help-anchor" data-tooltip="スピード = 正解タイプ数 ÷ プレイ時間(秒)。小数第3位を四捨五入して小数第2位まで表示。" aria-label="スピードの計算方法">?</span>
-                                スピード :
-                            </span>
-                            <span id="stat-wpm" class="font-bold font-black"></span>
-                        </p>
-                        <p class="stat-item upper font-middle">
-                            <span class="stat-label-with-help">
-                                <span class="stat-help-anchor" data-tooltip="正タイプ率 = 正解タイプ数 ÷ (正解タイプ数 + ミスタイプ数) × 100。入力が0回の場合は100.0%を表示。" aria-label="正タイプ率の計算方法">?</span>
-                                正タイプ率 :
-                            </span>
-                            <span id="stat-accuracy" class="font-bold font-black"></span>
-                        </p>
-                        <p class="stat-item upper font-middle">
-                            <span class="stat-label-with-help">
-                                <span class="stat-help-anchor stat-help-right" data-tooltip="プレイ中に最もミスタイプが多かったキーを表示。同数のキーはカンマ区切りで表示し、ミスがない場合は「特になし」。" aria-label="苦手キーの計算方法">?</span>
-                                苦手キー :
-                            </span>
-                            <span id="stat-weak-keys" class="font-bold font-black"></span>
-                        </p>
-                        <p class="stat-item lower font-middle">
-                            <span class="stat-label-with-help">
-                                <span class="stat-help-anchor" data-tooltip="保存されたプレイ履歴のうち、7日前から14日前までのスピード(keys/秒)の平均。該当履歴がない場合は0.00。また右側に今回のプレイデータとの変化率を表示。" aria-label="1週間前の平均スピードの計算方法">?</span>
-                                1週間前の平均スピード :
-                            </span>
-                            <span id="stat-recent-wpm-avg" class="font-bold font-black"></span>&ensp;<span id="stat-wpm-recent-change" class="font-bold font-black"></span>
-                        </p>
-                        <p class="stat-item lower font-middle">
-                            <span class="stat-label-with-help">
-                                <span class="stat-help-anchor" data-tooltip="保存されたプレイ履歴のうち、30日前から60日前までのスピード(keys/秒)の平均。該当履歴がない場合は0.00。また右側に今回のプレイデータとの変化率を表示。" aria-label="1か月前の平均スピードの計算方法">?</span>
-                                1か月前の平均スピード :
-                            </span>
-                            <span id="stat-initial-wpm-avg" class="font-bold font-black"></span>&ensp;<span id="stat-wpm-initial-change" class="font-bold font-black"></span>
-                        </p>
-                    </div>
-                </section> 
-
-                <article class="result-history-section" id="result-history-section">
-                    <h1 class="center">履歴</h1>
-                    <p id="law-history-empty" class="center">履歴はまだありません。</p>
-                    <div id="law-history-list" class="law-history-list"></div>
-                    <div id="law-history-pagination" class="law-history-pagination font-small font-bold none-select"></div>
-                </article>
-
-                <template id="law-history-card-template">
-                    <div class="law-history-card">
-                        <div class="law-history-info">
-                            <p class="font-small font-bold">分野 : <span class="info-badge font-small font-white law-history-field"></span></p>
-                            <p class="font-small font-bold">出典 : <span class="info-text font-small law-history-source-text"></span></p>
+                        <div class="result-data-area">
+                            <!-- 数値データ（元keyboard-container相当） -->
+                            <p class="stat-item upper font-middle">
+                                <span class="stat-label-with-help">
+                                    <span class="stat-help-anchor" data-tooltip="スピード = 正解タイプ数 ÷ プレイ時間(秒)。小数第3位を四捨五入して小数第2位まで表示。" aria-label="スピードの計算方法">?</span>
+                                    スピード :
+                                </span>
+                                <span id="stat-wpm" class="font-bold font-black"></span>
+                            </p>
+                            <p class="stat-item upper font-middle">
+                                <span class="stat-label-with-help">
+                                    <span class="stat-help-anchor" data-tooltip="正タイプ率 = 正解タイプ数 ÷ (正解タイプ数 + ミスタイプ数) × 100。入力が0回の場合は100.0%を表示。" aria-label="正タイプ率の計算方法">?</span>
+                                    正タイプ率 :
+                                </span>
+                                <span id="stat-accuracy" class="font-bold font-black"></span>
+                            </p>
+                            <p class="stat-item upper font-middle">
+                                <span class="stat-label-with-help">
+                                    <span class="stat-help-anchor stat-help-right" data-tooltip="プレイ中に最もミスタイプが多かったキーを表示。同数のキーはカンマ区切りで表示し、ミスがない場合は「特になし」。" aria-label="苦手キーの計算方法">?</span>
+                                    苦手キー :
+                                </span>
+                                <span id="stat-weak-keys" class="font-bold font-black"></span>
+                            </p>
+                            <p class="stat-item lower font-middle">
+                                <span class="stat-label-with-help">
+                                    <span class="stat-help-anchor" data-tooltip="保存されたプレイ履歴のうち、7日前から14日前までのスピード(keys/秒)の平均。該当履歴がない場合は0.00。また右側に今回のプレイデータとの変化率を表示。" aria-label="1週間前の平均スピードの計算方法">?</span>
+                                    1週間前の平均スピード :
+                                </span>
+                                <span id="stat-recent-wpm-avg" class="font-bold font-black"></span>&ensp;<span id="stat-wpm-recent-change" class="font-bold font-black"></span>
+                            </p>
+                            <p class="stat-item lower font-middle">
+                                <span class="stat-label-with-help">
+                                    <span class="stat-help-anchor" data-tooltip="保存されたプレイ履歴のうち、30日前から60日前までのスピード(keys/秒)の平均。該当履歴がない場合は0.00。また右側に今回のプレイデータとの変化率を表示。" aria-label="1か月前の平均スピードの計算方法">?</span>
+                                    1か月前の平均スピード :
+                                </span>
+                                <span id="stat-initial-wpm-avg" class="font-bold font-black"></span>&ensp;<span id="stat-wpm-initial-change" class="font-bold font-black"></span>
+                            </p>
                         </div>
-                        <p class="law-history-text"></p>
+                    </section> 
+
+                    <article class="result-history-section" id="result-history-section">
+                        <h1 class="center">履歴</h1>
+                        <p id="law-history-empty" class="center">履歴はまだありません。</p>
+                        <div id="law-history-list" class="law-history-list"></div>
+                        <div id="law-history-pagination" class="law-history-pagination font-small font-bold none-select"></div>
+                    </article>
+
+                    <template id="law-history-card-template">
+                        <div class="law-history-card">
+                            <div class="law-history-info">
+                                <p class="font-small font-bold">分野 : <span class="info-badge font-small font-white law-history-field"></span></p>
+                                <p class="font-small font-bold">出典 : <span class="info-text font-small law-history-source-text"></span></p>
+                            </div>
+                            <p class="law-history-text"></p>
+                        </div>
+                    </template>
+
+                    <article>
+                        <h1 class="center">プレイデータの保持</h1>
+                        <p class="article-contents">
+                            当サイトのプレイデータは、ユーザーの「現在の PC・ブラウザ」内に保存されます(ログイン不要)。そのため、別の PC やブラウザでアクセスした場合や、ブラウザの履歴・データを削除した場合は、データが失われます。ご留意ください。
+                        </p>
+                    </article>
+
+                    <article>
+                        <h1 class="center">アップデート情報</h1>
+                        <p class="article-contents">随時更新中です。</p>
+                    </article>
+
+                    <article>
+                        <h1 class="center">お問い合わせ</h1>
+                        <p class="article-contents">サイト、ゲームに関するお問い合わせは、フッターのアイコンから各種 SNS の DM までお願いいたします。プレイ上での問題などございましたら、ぜひご連絡いただけますと幸いです。</p>
+                    </article>     
+                </main>
+
+                <aside class="aside-data-container">
+                    <h1 class="center">アクティビティ</h1>
+                    <div class="aside-contents">
+                        <div class="aside-stats-container">
+                            <p>総プレイ日数</p>
+                            <p>&nbsp;:&nbsp;<span id="total-play-days"></span></p>
+                            <p>連続プレイ日数</p>
+                            <p>&nbsp;:&nbsp;<span id="current-streak-days"></span></p>
+                            <p>1週間の平均スピード</p>
+                            <p>&nbsp;:&nbsp;<span id="side-current-avg-wpm"></span></p>
+                            <p>過去最高スピード</p>
+                            <p>&nbsp;:&nbsp;<span id="side-max-wpm"></span></p>
+                            <p>累計苦手キー</p>
+                            <p>&nbsp;:&nbsp;<span id="side-cumulative-weak-keys"></span></p>
+                        </div>
+                        <!-- <p>次の司法試験まであと<span id="next-exam-days"></span></p> -->
                     </div>
-                </template>
-
-                <article>
-                    <h1 class="center">プレイデータの保持</h1>
-                    <p class="article-contents">
-                        当サイトのプレイデータは、ユーザーの「現在の PC・ブラウザ」内に保存されます(ログイン不要)。そのため、別の PC やブラウザでアクセスした場合や、ブラウザの履歴・データを削除した場合は、データが失われます。ご留意ください。
-                    </p>
-                </article>
-
-                <article>
-                    <h1 class="center">アップデート情報</h1>
-                    <p class="article-contents">随時更新中です。</p>
-                </article>
-
-                <article>
-                    <h1 class="center">お問い合わせ</h1>
-                    <p class="article-contents">サイト、ゲームに関するお問い合わせは、フッターのアイコンから各種 SNS の DM までお願いいたします。プレイ上での問題などございましたら、ぜひご連絡いただけますと幸いです。</p>
-                </article>     
-            </main>
-
-            <aside class="aside-data-container">
-                <h1 class="center">アクティビティ</h1>
-                <div class="aside-contents">
-                    <div class="aside-stats-container">
-                        <p>総プレイ日数</p>
-                        <p>&nbsp;:&nbsp;<span id="total-play-days"></span></p>
-                        <p>連続プレイ日数</p>
-                        <p>&nbsp;:&nbsp;<span id="current-streak-days"></span></p>
-                        <p>1週間の平均スピード</p>
-                        <p>&nbsp;:&nbsp;<span id="side-current-avg-wpm"></span></p>
-                        <p>過去最高スピード</p>
-                        <p>&nbsp;:&nbsp;<span id="side-max-wpm"></span></p>
-                        <p>累計苦手キー</p>
-                        <p>&nbsp;:&nbsp;<span id="side-cumulative-weak-keys"></span></p>
-                    </div>
-                    <!-- <p>次の司法試験まであと<span id="next-exam-days"></span></p> -->
-                </div>
-            </aside>            
+                </aside>            
+            </div>
         </div>
         
+        <div class="mobile">    
+            <h1 class="center">law_typing - 司法試験向けタイピング練習サイト</h1>
+
+            <section class="lp-section">
+                <h1>ご案内</h1>
+                <p>
+                    本サイトはタイピング練習サイトです。タイピング練習機能を快適に利用するために、<span class="font-bold">PC によるアクセス</span>を推奨しております。
+                </p>
+            </section>
+            <section class="lp-section">
+                <h1>概要</h1>
+                <p>
+                    law_typingは、司法試験受験生のためのタイピング練習サイトです。主要7科目を分野ごとに出題し、速度と正タイプ率の推移、苦手キーを可視化しながら実戦的にタイピング力を鍛錬できます。
+                </p>
+            </section>
+            <section class="lp-section" id="lp-screenshot">
+                <h1 class="lp-section-title">スクショ</h1>
+                <figure class="lp-screenshot">
+                    <img src="images/ogp-v2.png" alt="law_typingの画面イメージ">
+                    <figcaption>実際の分析画面イメージ</figcaption>
+                </figure>
+            </section>
+
+            <section class="lp-section">
+                <h1>開発背景</h1>
+                <p>
+                    司法試験の答案作成では、知識だけでなく入力速度と精度が得点を左右します。学習内容に直結した文章でタイピング力を鍛えたいというニーズから開発しました。
+                </p>
+            </section>
+
+            <section class="lp-section">
+                <h1>学習効果</h1>
+                <ul class="lp-list">
+                    <li>条文をタイピングすることによる試験学習の補助</li>
+                    <li>答案作成時の入力負荷を軽減、思考に集中できる</li>
+                    <li>苦手キーの克服でタイプミスを減らし、修正時間を短縮</li>
+                    <li>スピードと正タイプ率の推移の可視化により、学習の成果を実感</li>
+                </ul>
+            </section>
+
+            <section class="lp-section" id="lp-subjects">
+                <h1 class="lp-section-title">対応科目</h1>
+                <div class="lp-subjects">
+                    <span>憲法</span>
+                    <span>行政法</span>
+                    <span>民法</span>
+                    <span>商法</span>
+                    <span>民事訴訟法</span>
+                    <span>刑法</span>
+                    <span>刑事訴訟法</span>
+                </div>
+            </section>
+
+            <section class="lp-section">
+                <h1>お問い合わせ</h1>
+                <p>サイト、ゲームに関するお問い合わせは、フッターのアイコンから各種 SNS の DM までお願いいたします。プレイ上での問題などございましたら、ぜひご連絡いただけますと幸いです。</p>
+            </section>
+        </div> 
+
+            
         <footer>
             <div class="footer-flex font-small center none-select">
                 <a href="rule.html"><span>ご利用規約</span></a>
@@ -335,6 +397,6 @@
                 </a>
             </div>
             <p class="font-small center">&copy; 2026 law_typing</p>
-        </footer>
+        </footer>    
     </body>
 </html>

@@ -37,6 +37,7 @@ html[data-theme="dark"]{
 body{
     font-size: 100%;
     background-color: var(--base-color);
+    /* font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Noto Sans", sans-serif; */
     font-family: "Noto Sans JP", "Noto Sans", sans-serif;
 }
 
@@ -64,6 +65,10 @@ span{
 
 a{
     text-decoration: none;
+}
+
+li{
+    color: var(--font-gray);
 }
 
 .nav-flex a:hover span,
@@ -123,18 +128,17 @@ hr{
     display: none;
 }
 
-/* ヘッダー&ナビゲーションメニュー */
-/* .header-flex{
-    display: flex;
-    justify-content: space-between; 
-    background-color: var(--base-color);
-    height: 2.25rem;
-    align-items: center;
-    font-size: 1rem;
-    padding: 0 1rem 0 1rem;
-    white-space: nowrap;
-} */
+/* レスポンシブデザイン */
+.desktop{
+    display: block;
+}
+.mobile{
+    display: none;
+    font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Noto Sans", sans-serif;
+    padding: 2.5rem 1.25rem 3rem 1.25rem;
+}
 
+/* ヘッダー */
 .nav-flex{
     background-color: var(--base-color);
     display: flex;
@@ -850,7 +854,102 @@ footer{
     line-height: 2;
 }
 
-/*デスクトップ版*/
-@media(min-width: 800px) {
+/*モバイル版*/
+@media (max-width: 768px){
+    .mobile{
+        display: block;
+    }
 
+    .desktop{
+        display: none;
+    }
+}
+
+.lp-section{
+    margin-top: 1.75rem;
+    padding: 1.5rem 1.25rem;
+    background: var(--base-color-2);
+    border-radius: 18px;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.lp-section-title{
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
+}
+
+.lp-screenshot img{
+    width: 100%;
+    border-radius: 14px;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.18);
+}
+
+.lp-screenshot figcaption{
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.lp-list{
+    padding-left: 1.2rem;
+}
+
+.lp-list li{
+    margin-bottom: 0.5rem;
+}
+
+.lp-subjects{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.lp-subjects span{
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(14, 116, 144, 0.12);
+    border: 1px solid rgba(14, 116, 144, 0.25);
+}
+
+@keyframes lpFadeUp{
+    from{
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lp-section{
+    animation: lpFadeUp 0.6s ease both;
+}
+
+.mobile > section:nth-of-type(1){
+    animation-delay: 0.05s;
+}
+
+.mobile > section:nth-of-type(2){
+    animation-delay: 0.1s;
+}
+
+.mobile > section:nth-of-type(3){
+    animation-delay: 0.15s;
+}
+
+.mobile > section:nth-of-type(4){
+    animation-delay: 0.2s;
+}
+
+.mobile > section:nth-of-type(5){
+    animation-delay: 0.25s;
+}
+
+.mobile > section:nth-of-type(6){
+    animation-delay: 0.3s;
+}
+
+.mobile > section:nth-of-type(7){
+    animation-delay: 0.35s;
 }
