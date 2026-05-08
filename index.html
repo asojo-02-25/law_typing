@@ -218,7 +218,6 @@
                             </div>
                         </div>
                         <div class="result-data-area">
-                            <!-- 数値データ（元keyboard-container相当） -->
                             <p class="stat-item upper font-middle">
                                 <span class="stat-label-with-help">
                                     <span class="stat-help-anchor" data-tooltip="スピード = 正解タイプ数 ÷ プレイ時間(秒)。小数第3位を四捨五入して小数第2位まで表示。" aria-label="スピードの計算方法">?</span>
@@ -317,23 +316,48 @@
             <h1 class="center">law_typing - 司法試験向けタイピング練習サイト</h1>
 
             <section class="lp-section">
-                <h1>ご案内</h1>
+                <h1>ごあんない</h1>
                 <p>
-                    本サイトはタイピング練習サイトです。タイピング練習機能を快適に利用するために、<span class="font-bold">PC によるアクセス</span>を推奨しております。
+                    本サイトはタイピング練習サイトです。PC よりアクセスしていただけますと、タイピング練習機能をご利用いただけます。
                 </p>
             </section>
+
             <section class="lp-section">
-                <h1>概要</h1>
+                <h1>law_typing について</h1>
                 <p>
                     law_typingは、司法試験受験生のためのタイピング練習サイトです。主要7科目を分野ごとに出題し、速度と正タイプ率の推移、苦手キーを可視化しながら実戦的にタイピング力を鍛錬できます。
                 </p>
             </section>
-            <section class="lp-section" id="lp-screenshot">
-                <h1 class="lp-section-title">スクショ</h1>
-                <figure class="lp-screenshot">
-                    <img src="images/ogp-v2.png" alt="law_typingの画面イメージ">
-                    <figcaption>実際の分析画面イメージ</figcaption>
-                </figure>
+
+            <section class="lp-section">
+                <h1 class="lp-section-title">画面プレビュー</h1>
+                <div>  
+                    <h3>1. タイピング練習画面</h3>
+                    <div id="lp-question-area-visual" class="area-visual">
+                        <div class="question-info">
+                            <p class="font-small font-bold">分野 : <span id="lp-question-field" class="info-badge font-small font-white">憲法</span></p>
+                            <p class="font-small font-bold">出典 : <span id="lp-question-source" class="info-text font-small">日本国憲法 第十九条 第1項</span></p>
+                        </div>
+                        <p id="lp-question-text" class="font-bold"><span class="current">思想及び良心の自由は、</span>これを侵してはならない。</p>
+                        <p class="font-small font-bold right">残り 1 問</p>
+                    </div>
+                    <div id="lp-answer-area">
+                        <div id="lp-answer-area-visual" class="area-visual">
+                            <p id="lp-current-char-guide" class="font-bold">思想及び良心の自由は、</p>
+                            <p id="lp-current-guide" class="font-middle"><span class="font-bold">しそうおよび</span>りょうしんのじゆうは</p>
+                            <p id="lp-user-input" class="font-middle">shisouoyobi</p>
+                        </div>
+                    </div>
+                    <p class="font-middle lp-preview-description">実際の出題文と入力ガイドを見ながら、タイピングを進める画面です。</p>
+                </div>
+
+                <div>
+                    <h3>2. 結果画面</h3>
+                    <div class="lp-chart-frame">
+                        <canvas id="lp-result-chart" aria-label="成長推移サンプルグラフ"></canvas>
+                    </div>
+                    <p class="font-middle lp-preview-description">プレイ後に速度と正タイプ率の推移を確認し、成長の度合いを把握できます。</p>
+                </div>
             </section>
 
             <section class="lp-section">
@@ -344,16 +368,6 @@
             </section>
 
             <section class="lp-section">
-                <h1>学習効果</h1>
-                <ul class="lp-list">
-                    <li>条文をタイピングすることによる試験学習の補助</li>
-                    <li>答案作成時の入力負荷を軽減、思考に集中できる</li>
-                    <li>苦手キーの克服でタイプミスを減らし、修正時間を短縮</li>
-                    <li>スピードと正タイプ率の推移の可視化により、学習の成果を実感</li>
-                </ul>
-            </section>
-
-            <section class="lp-section" id="lp-subjects">
                 <h1 class="lp-section-title">対応科目</h1>
                 <div class="lp-subjects">
                     <span>憲法</span>
@@ -364,6 +378,16 @@
                     <span>刑法</span>
                     <span>刑事訴訟法</span>
                 </div>
+            </section>
+
+            <section class="lp-section">
+                <h1>学習効果</h1>
+                <ul class="lp-list">
+                    <li>条文をタイピングすることによる試験学習の補助</li>
+                    <li>答案作成時の入力負荷を軽減、思考に集中できる</li>
+                    <li>苦手キーの克服でタイプミスを減らし、修正時間を短縮</li>
+                    <li>スピードと正タイプ率の推移の可視化により、学習の成果を実感</li>
+                </ul>
             </section>
 
             <section class="lp-section">
