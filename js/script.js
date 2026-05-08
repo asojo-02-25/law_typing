@@ -19,6 +19,7 @@ let missedKeyCount = 0;         // ミスタイプ数
 let missedKeysMap = {};         // ミスタイプしたキーを格納するオブジェクト
 let isGameActive = false;       // ゲーム進行中フラグ
 let resultChartInstance = null; // 結果チャートのインスタンス保持用
+let lpChartInstance = null;     // LPサンプルチャートのインスタンス保持用
 let selectedResultPeriod = 'all'; // 結果グラフの表示期間
 let selectedLawHistoryPage = 1; // 法律履歴の表示ページ
 let currentRunTypedHistory = []; // 現在プレイで確定した問題履歴
@@ -624,6 +625,48 @@ const initializeThemeControl = () => {
     }
 };
 
+const buildLpSampleHistory = () => {
+    const wpmSeries = [
+        3.7, 3.78, 3.74, 3.8, 3.86, 3.82, 3.9, 3.88, 3.95, 3.92,
+        4.0, 3.96, 4.05, 4.1, 4.03, 4.12, 4.08, 4.15, 4.05, 4.18,
+        4.1, 3.98, 4.02, 3.9, 3.95, 3.88, 3.92, 3.98, 4.0, 3.94,
+        4.05, 4.12, 4.08, 4.16, 4.2, 4.15, 4.22, 4.18, 4.25, 4.3,
+        4.18, 4.24, 4.28, 4.22, 4.3, 4.35, 4.32, 4.4, 4.45, 4.38
+    ];
+    const accuracySeries = [
+        82.0, 82.8, 82.1, 83.0, 83.7, 84.5, 85.2, 84.4, 85.6, 86.3,
+        88.1, 90.4, 88.2, 87.8, 88.6, 87.4, 89.2, 88.3, 89.9, 88.8,
+        90.6, 89.1, 90.0, 88.7, 90.8, 89.4, 90.2, 89.0, 91.1, 89.7,
+        91.6, 90.2, 91.9, 90.7, 92.6, 91.1, 93.0, 91.8, 93.5, 92.0,
+        92.4, 93.1, 90.9, 88.7, 91.6, 92.2, 90.6, 92.8, 95.0, 97.0
+    ];
+    const total = Math.min(wpmSeries.length, accuracySeries.length);
+    const dayMs = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    return Array.from({ length: total }, (_, index) => {
+        const offset = total - 1 - index;
+        return {
+            date: new Date(now - offset * dayMs).toISOString(),
+            wpm: wpmSeries[index],
+            accuracy: accuracySeries[index],
+            missCount: 0,
+            weakKey: '特になし',
+            duration: 60,
+            questionHistory: [],
+        };
+    });
+};
+
+const renderLpSampleChart = () => {
+    const canvas = document.getElementById('lp-result-chart');
+    if (!canvas) {
+        return;
+    }
+    const sampleHistory = buildLpSampleHistory();
+    drawResultChart(sampleHistory, canvas);
+};
+
 // ====================================
 // ページロード時の初期化
 // ====================================
@@ -631,6 +674,7 @@ const initializeThemeControl = () => {
 // ページ読み込み時に画面状態をリセット
 window.addEventListener('load', () => {
     initializeThemeControl();
+    renderLpSampleChart();
 
     const allHistory = getStoredHistoryAll();
     displaySideStats(allHistory);
@@ -1872,12 +1916,13 @@ const finishGame = () => {
 // グラフ描画 (drawResultChart)
 // ====================================
 
-const drawResultChart = (history = getStoredHistoryAll()) => {
-    const resultChartCanvas = document.getElementById('result-chart');
+const drawResultChart = (history = getStoredHistoryAll(), canvasElement = null) => {
+    const resultChartCanvas = canvasElement || document.getElementById('result-chart');
     if (!resultChartCanvas) {
         return;
     }
     const ctx = resultChartCanvas.getContext('2d');
+    const isLpChart = resultChartCanvas.id === 'lp-result-chart';
 
     // 選択された期間のデータを取得
     const recentHistory = getHistoryByPeriod(history, selectedResultPeriod);
@@ -1904,11 +1949,12 @@ const drawResultChart = (history = getStoredHistoryAll()) => {
     const avgAccuracy = calcAverage(accuracyData);
     
     // チャートの作成
-    if(resultChartInstance){
-        resultChartInstance.destroy();
+    const existingInstance = isLpChart ? lpChartInstance : resultChartInstance;
+    if (existingInstance) {
+        existingInstance.destroy();
     }
 
-    resultChartInstance = new Chart(ctx, {
+    const nextChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels : labels,
@@ -2098,7 +2144,13 @@ const drawResultChart = (history = getStoredHistoryAll()) => {
                 }
             }
         }]
-    })
+    });
+
+    if (isLpChart) {
+        lpChartInstance = nextChartInstance;
+    } else {
+        resultChartInstance = nextChartInstance;
+    }
 };
 
 // ====================================
