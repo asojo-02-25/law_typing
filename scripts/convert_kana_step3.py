@@ -97,6 +97,7 @@ CUSTOM_READING_MAP: Dict[str, str] = {
     "長い": "ながい",
     "長く": "ながく",
     "長": "ちょう",
+    "町村": "ちょうそん",
 }
 
 CUSTOM_READING_TERMS: Tuple[str, ...] = tuple(sorted(CUSTOM_READING_MAP.keys(), key=len, reverse=True))
