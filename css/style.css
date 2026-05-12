@@ -752,6 +752,14 @@ hr{
         white-space: normal;
     }
 
+    .stat-help-anchor.tooltip-left::after{
+        top: 50%;
+        right: calc(100% + .5rem);
+        bottom: auto;
+        left: auto;
+        transform: translateY(-50%);
+    }
+
     .stat-help-anchor:hover::before,
     .stat-help-anchor:hover::after{
         opacity: 1;

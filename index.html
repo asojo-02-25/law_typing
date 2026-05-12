@@ -113,7 +113,7 @@
                                 <p id="start-error-message" class="form-error-message font-middle font-bold"></p>
                                 <input type="submit" value="ゲームスタート" id="start-button" class="font-white font-bold">
                                 <p><span>Spaceキー</span> : スタート</p>
-                                <p><span>Escキー</span> : この画面に戻る</p>
+                                <p class="font-middle">(プレイ中にEscキー押下でこの画面に戻ります)</p>
                             </div>
                         </form>
                     </section>
@@ -203,7 +203,7 @@
                     <!--結果画面-->
                     <section class="typing-contents none-select" id="results-screen">
                         <div class="result-graph-area">
-                            <h1 class="center"><span class="result-title-with-help font-black"><span class="stat-help-anchor result-title-help" data-tooltip="keys/秒 < 2 または正タイプ率 < 70% のデータは正常にプレイが行われていないとみなし履歴・グラフ・平均から除外されます。" aria-label="外れ値除外について">?</span>結果</span></h1>
+                            <h1 class="center"><span class="result-title-with-help font-black"><span class="stat-help-anchor result-title-help tooltip-left" data-tooltip="keys/秒 < 1.5 または正タイプ率 < 70% のデータは正常にプレイが行われていないとみなし履歴・グラフ・平均から除外されます。" aria-label="外れ値除外について">?</span>結果</span></h1>
                             <div class="result-graph-wrapper">
                                 <canvas id="result-chart" aria-label="結果グラフ"></canvas>
                                 <fieldset class="result-period-selector font-middle" aria-label="グラフ表示期間">
