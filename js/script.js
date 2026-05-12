@@ -701,7 +701,7 @@ window.addEventListener('load', () => {
 
 const STORAGE_KEY = 'law_type_play_data';
 
-const MIN_VALID_KEYS_PER_SEC = 2;
+const MIN_VALID_KEYS_PER_SEC = 1.5;
 const MIN_VALID_ACCURACY = 70;
 
 const toFiniteNumber = (value) => {
