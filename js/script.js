@@ -269,33 +269,33 @@ const getDefaultRomajiForUnit = (unit) => {
 
 const buildRomajiDisplayHtml = (showGuide) => {
     let html = '';
+    const typedClassName = showGuide ? 'romaji-typed-dimmed' : 'romaji-typed';
 
     typingState.units.forEach((unit, idx) => {
         if (unitChunkMap[idx] !== currentChunkIndex) return;
 
         if (idx < typingState.currentUnitIdx) {
             const typed = typedRomajiByUnit[idx] || (showGuide ? getDefaultRomajiForUnit(unit) : '');
-            html += `<span class="romaji-typed font-bold">${escapeHtml(typed)}</span>`;
+            html += `<span class="${typedClassName}">${escapeHtml(typed)}</span>`;
             return;
         }
 
         if (idx === typingState.currentUnitIdx) {
             const currentTyped = typingState.typedBuffer;
-            html += `<span class="romaji-typed font-bold">${escapeHtml(currentTyped)}</span>`;
+            html += `<span class="${typedClassName}">${escapeHtml(currentTyped)}</span>`;
 
             if (showGuide) {
                 const guideCandidate = typingState.candidates[0] || getDefaultRomajiForUnit(unit);
                 const rest = guideCandidate.startsWith(currentTyped)
                     ? guideCandidate.slice(currentTyped.length)
                     : '';
-                html += `<span class="romaji-guide font-bold">${escapeHtml(rest)}</span>`;
+                html += `<span class="romaji-guide">${escapeHtml(rest)}</span>`;
+                return;
             }
-
-            return;
         }
 
         if (showGuide) {
-            html += `<span class="romaji-guide font-bold">${escapeHtml(getDefaultRomajiForUnit(unit))}</span>`;
+            html += `<span class="romaji-guide">${escapeHtml(getDefaultRomajiForUnit(unit))}</span>`;
         }
     });
 

@@ -460,6 +460,10 @@ hr{
     }
 
     #user-input .romaji-typed{
+        opacity: 1;
+    }
+
+    #user-input .romaji-typed-dimmed{
         opacity: .5;
     }
 
