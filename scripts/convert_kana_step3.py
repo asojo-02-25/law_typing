@@ -39,8 +39,10 @@ except ImportError as exc:
     ) from exc
 
 
+# 「遺言者」のように、ある単語の中に読みを指定している場合、「遺言+者」解釈され、熟語の読みとして適切に読まれない可能性がある。
 CUSTOM_READING_MAP: Dict[str, str] = {
     "遺言": "いごん",
+    "遺言者" : "遺言者",
     "競売": "けいばい",
     "瑕疵": "かし",
     "勾留": "こうりゅう",
@@ -98,6 +100,12 @@ CUSTOM_READING_MAP: Dict[str, str] = {
     "長く": "ながく",
     "長": "ちょう",
     "町村": "ちょうそん",
+    "総社員" : "そうしゃいん",
+    "法の下" : "ほうのもと",
+    "復代理人" : "ふくだいりにん",
+    "復受任者" : "ふくじゅにんしゃ",
+    "先取特権" : "さきどりとっけん",
+    "資本金" : "しほんきん",
 }
 
 CUSTOM_READING_TERMS: Tuple[str, ...] = tuple(sorted(CUSTOM_READING_MAP.keys(), key=len, reverse=True))
