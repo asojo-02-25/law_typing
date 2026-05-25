@@ -431,6 +431,7 @@ hr{
 
     #user-input{
         display: flex;
+        flex-wrap: wrap;
         align-items: flex-start;
         justify-content: flex-start;
         padding: 0 1.75rem 0 1.75rem;
@@ -442,15 +443,28 @@ hr{
 
     #current-guide .guide-completed{
         font-weight: bold;
+        color : var(--accent-color);
     }
 
     #current-guide .guide-pending{
-        font-weight: normal;
+        font-weight: bold;
     }
 
     #user-input{
         width: 100%;
         word-break: break-all;
+    }
+
+    #user-input .romaji-guide{
+        opacity: 1;
+    }
+
+    #user-input .romaji-typed{
+        opacity: 1;
+    }
+
+    #user-input .romaji-typed-dimmed{
+        opacity: .5;
     }
 
     /*キーボード*/
