@@ -51,6 +51,7 @@ const THEME_STORAGE_KEY = 'law_type_theme';
 const THEME_ATTRIBUTE_NAME = 'data-theme';
 const THEME_LIGHT = 'light';
 const THEME_DARK = 'dark';
+const KEYBOARD_SETTING_VALUE = 'keyboard-represent';
 const ROMAJI_GUIDE_SETTING_VALUE = 'romaji-guide';
 
 const animationTrackerLogger = {
@@ -1219,6 +1220,15 @@ const getGameSettings = () => {
     };
 };
 
+const getEnabledSettings = (config = {}) => {
+    const settings = Array.isArray(config.settings) ? config.settings : [];
+
+    return {
+        keyboard: settings.includes(KEYBOARD_SETTING_VALUE),
+        romajiGuide: settings.includes(ROMAJI_GUIDE_SETTING_VALUE),
+    };
+};
+
 // --- 残り問題数の表示更新 ---
 const updateRemainingQuestionCount = (forcedValue = null) => {
     if(!remainingElement) return;
@@ -1477,11 +1487,8 @@ const startGame = (config) => {
     guideElement.style.display = 'block';
 
     lastGameSettings = JSON.parse(JSON.stringify(config));  // 直近の設定を保持
-    isRomajiGuideEnabled = Array.isArray(config.settings)
-        ? config.settings.includes(ROMAJI_GUIDE_SETTING_VALUE)
-        : true;
-    
-    console.log("開始設定", config); // 設定の取得・反映確認
+    const enabledSettings = getEnabledSettings(config);
+    isRomajiGuideEnabled = enabledSettings.romajiGuide;
 
     correctKeyCount = 0;
     missedKeyCount = 0;
@@ -1490,11 +1497,8 @@ const startGame = (config) => {
     gameStartTime = Date.now();
     renderLawHistory(getStoredHistoryForDisplay(), 1);
 
-    // if(config.settings.includes('roman-letters-represent')){
-    //     console.log("ローマ字を表示します");
-    // }
     if(keyboardContainer){
-        if(config.settings.includes('keyboard-represent')){
+        if(enabledSettings.keyboard){
             keyboardContainer.style.visibility = 'visible';
         } else {
             keyboardContainer.style.visibility = 'hidden';
