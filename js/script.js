@@ -13,6 +13,8 @@ let unitChunkMap = [];          // 各ユニットが属する文節のインデ
 let currentChunkIndex = 0;      // 今何個目の文節を打っているか
 let inputBuffer = '';           // 現在文節でユーザーが打ち終えたローマ字
 let chunkCommittedRomaji = '';  // 現在文節で確定済みのローマ字
+let typedRomajiByUnit = [];     // 各かなユニットで確定した実入力ローマ字
+let isRomajiGuideEnabled = true; // 未入力ローマ字ガイドの表示設定
 let gameStartTime = 0;          // 開始タイムスタンプ
 let correctKeyCount = 0;        // 正解タイプ数
 let missedKeyCount = 0;         // ミスタイプ数
@@ -49,6 +51,7 @@ const THEME_STORAGE_KEY = 'law_type_theme';
 const THEME_ATTRIBUTE_NAME = 'data-theme';
 const THEME_LIGHT = 'light';
 const THEME_DARK = 'dark';
+const ROMAJI_GUIDE_SETTING_VALUE = 'romaji-guide';
 
 const animationTrackerLogger = {
     enabled: true,
@@ -259,6 +262,46 @@ const buildCurrentGuideHtml = () => {
     return `<span class="guide-completed">${completedText}</span><span class="guide-pending">${pendingText}</span>`;
 };
 
+const getDefaultRomajiForUnit = (unit) => {
+    const candidates = getRomajiCandidatesForUnit(unit);
+    return candidates[0] || '';
+};
+
+const buildRomajiDisplayHtml = (showGuide) => {
+    let html = '';
+
+    typingState.units.forEach((unit, idx) => {
+        if (unitChunkMap[idx] !== currentChunkIndex) return;
+
+        if (idx < typingState.currentUnitIdx) {
+            const typed = typedRomajiByUnit[idx] || (showGuide ? getDefaultRomajiForUnit(unit) : '');
+            html += `<span class="romaji-typed font-bold">${escapeHtml(typed)}</span>`;
+            return;
+        }
+
+        if (idx === typingState.currentUnitIdx) {
+            const currentTyped = typingState.typedBuffer;
+            html += `<span class="romaji-typed font-bold">${escapeHtml(currentTyped)}</span>`;
+
+            if (showGuide) {
+                const guideCandidate = typingState.candidates[0] || getDefaultRomajiForUnit(unit);
+                const rest = guideCandidate.startsWith(currentTyped)
+                    ? guideCandidate.slice(currentTyped.length)
+                    : '';
+                html += `<span class="romaji-guide font-bold">${escapeHtml(rest)}</span>`;
+            }
+
+            return;
+        }
+
+        if (showGuide) {
+            html += `<span class="romaji-guide font-bold">${escapeHtml(getDefaultRomajiForUnit(unit))}</span>`;
+        }
+    });
+
+    return html;
+};
+
 const buildKanaChunks = (kanaText) => {
     if (!kanaText) return [];
     return kanaText.split(/([、。])/).reduce((acc, curr) => {
@@ -301,6 +344,7 @@ const primeTypingStateFromKana = (kanaSource, kanaChunks) => {
     );
     unitChunkMap = chunkMap;
     initializeTypingState(units);
+    typedRomajiByUnit = Array(typingState.units.length).fill('');
     updateChunkIndexFromState(true);
     if (typingState.units.length === 0) {
         typingLogger.warn('KanaParser', 'no kana units parsed', { questionIndex: currentQuestionIndex });
@@ -318,6 +362,7 @@ const recordMissedKeyExpectation = () => {
 
 const finalizeCurrentUnit = () => {
     const completedValue = typingState.typedBuffer;
+    typedRomajiByUnit[typingState.currentUnitIdx] = completedValue;
     chunkCommittedRomaji += completedValue;
     typingState.resolution = 'open';
     typingState.deferredShortPath = null;
@@ -1432,6 +1477,9 @@ const startGame = (config) => {
     guideElement.style.display = 'block';
 
     lastGameSettings = JSON.parse(JSON.stringify(config));  // 直近の設定を保持
+    isRomajiGuideEnabled = Array.isArray(config.settings)
+        ? config.settings.includes(ROMAJI_GUIDE_SETTING_VALUE)
+        : true;
     
     console.log("開始設定", config); // 設定の取得・反映確認
 
@@ -1518,6 +1566,7 @@ const setupQuestionData = () => {
     currentChunkIndex = 0;
     inputBuffer = '';
     chunkCommittedRomaji = '';
+    typedRomajiByUnit = [];
     const kanaVariants = normalizeKanaSource(currentQuestion.kana);
     const primaryKana = kanaVariants[0] || '';
     chunkedKana = buildKanaChunks(primaryKana);
@@ -1801,8 +1850,8 @@ const updateQuestionDisplay = () => {
     }
 
     // user-inputの表示
-    inputBuffer = chunkCommittedRomaji + typingState.typedBuffer;
-    inputElement.textContent = inputBuffer;
+    inputElement.innerHTML = buildRomajiDisplayHtml(isRomajiGuideEnabled);
+    inputBuffer = inputElement.textContent;
 
     // 次入力する文字のハイライト
     updateKeyboardHighlights();
@@ -2290,6 +2339,8 @@ const resetGame = () => {
     currentChunkIndex = 0;      // 今何個目の文節を打っているか
     inputBuffer = '';           // ユーザーが打っている正誤未確定の文節
     chunkCommittedRomaji = '';
+    typedRomajiByUnit = [];
+    isRomajiGuideEnabled = true;
     gameStartTime = 0;          // 開始タイムスタンプ
     correctKeyCount = 0;        // 正解タイプ数
     missedKeyCount = 0;         // ミスタイプ数
