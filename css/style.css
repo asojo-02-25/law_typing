@@ -442,10 +442,11 @@ hr{
 
     #current-guide .guide-completed{
         font-weight: bold;
+        color : var(--accent-color);
     }
 
     #current-guide .guide-pending{
-        font-weight: normal;
+        font-weight: bold;
     }
 
     #user-input{
