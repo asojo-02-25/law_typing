@@ -1174,11 +1174,6 @@ const getGameSettings = () => {
     };
 };
 
-// --- タイプべきキーのハイライト ---
-const highlightNextKeys = () => {
-    updateKeyboardHighlights();
-};
-
 // --- 残り問題数の表示更新 ---
 const updateRemainingQuestionCount = (forcedValue = null) => {
     if(!remainingElement) return;
@@ -1810,9 +1805,9 @@ const updateQuestionDisplay = () => {
     inputElement.textContent = inputBuffer;
 
     // 次入力する文字のハイライト
-    highlightNextKeys();
+    updateKeyboardHighlights();
     updateRemainingQuestionCount();
-};
+};  
 
 // ====================================
 // 次の問題に進む (nextQuestion)
