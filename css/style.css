@@ -345,6 +345,10 @@ hr{
         font-weight: bold;
     }
     
+    .space{
+        color: var(--accent-color);
+    }
+
     #start-button{
         font-size: 1rem;
         background-color: var(--main-color);
