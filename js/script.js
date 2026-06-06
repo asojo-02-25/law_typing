@@ -568,7 +568,17 @@ const isTransitionPhase = () => !isGameActive && currentScreen === SCREEN.GAME;
 
 const setStartScreenError = (message = '') => {
     if (!startErrorElement) return;
+
+    if (!message) {
+        startErrorElement.setAttribute('aria-hidden', 'true');
+        startErrorElement.style.display = 'none';
+        startErrorElement.textContent = '';
+        return;
+    }
+
+    startErrorElement.setAttribute('aria-hidden', 'false');
     startErrorElement.textContent = message;
+    startErrorElement.style.display = 'block';
 };
 
 const clearStartScreenError = () => {
@@ -1936,21 +1946,17 @@ const finishGame = () => {
     
     // データの保存
     const isSaved = saveToLocalStorage(resultData);
-    if (!isSaved) {
-        console.info('outlier result skipped from history', {
-            wpm: resultData.wpm,
-            accuracy: resultData.accuracy,
-        });
-    } else {
-        // 保存済み履歴と重複させないため、ランタイム履歴は保存成功時にクリアする
-        currentRunTypedHistory = [];
+    if (!message) {
+        startErrorElement.setAttribute('aria-hidden', 'true');
+        startErrorElement.style.display = 'none';
+        startErrorElement.textContent = '';
+        return;
     }
 
-    // 画面表示の更新
-    charGuideElement.textContent = '';
-    charGuideElement.textContent = 'finish!';
-    guideElement.textContent = '';
-    guideElement.style.display = 'none';
+    // 表示（エラーあり）：まずアクセシビリティツリーに出し、次にテキストを入れて表示する
+    startErrorElement.setAttribute('aria-hidden', 'false');
+    startErrorElement.textContent = message;
+    startErrorElement.style.display = 'block';
     inputElement.style.display = 'none';
     document.querySelectorAll('.key.active').forEach((keys) => {
         keys.classList.remove('active');

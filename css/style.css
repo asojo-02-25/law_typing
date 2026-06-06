@@ -255,6 +255,14 @@ hr{
         padding: .75rem 0 .75rem 0;
     }
 
+    #start-error-message{
+        display: none;
+        color: var(--error-color);
+        font-weight: bold;
+        margin-top: 0.5rem;
+        min-height: 1.5rem;
+    }
+
     form{
         line-height: 1.75;
         text-align: center;
@@ -345,6 +353,76 @@ hr{
         font-weight: bold;
     }
     
+    .shortcut-bar{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: .75rem 1.25rem;
+        margin: .25rem 0 .25rem 0;
+        cursor: default;
+    }
+
+    .shortcut-hint{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .125rem;
+        margin: 0;
+        color: var(--font-gray);
+        font-size: .875rem;
+        line-height: 1.8;
+        white-space: nowrap;
+    }
+
+    .keycap{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.75rem;
+        min-height: 1.65rem;
+        padding: .125rem .625rem .175rem .625rem;
+        border: 1.5px solid var(--accent-color-2);
+        border-radius: 6px;
+        background: linear-gradient(180deg, var(--base-color-2), var(--base-color));
+        box-shadow: 0 2px 0 var(--accent-color-2), 0 4px 8px rgba(0,0,0,.08);
+        color: var(--font-black);
+        font-family: "Noto Sans", "Noto Sans JP", sans-serif;
+        font-size: .75rem;
+        font-weight: bold;
+        line-height: 1;
+        transition: border-color .2s ease, box-shadow .2s ease, color .2s ease;
+    }
+
+    .primary-keycap{
+        min-width: 4.5rem;
+        border-color: var(--main-color);
+        color: var(--main-color);
+        box-shadow: 0 2px 0 var(--main-color), 0 4px 10px rgba(39,119,247,.18);
+    }
+
+    .keycap:hover{
+        animation: keycap-wiggle .35s ease-in-out;
+    }
+
+    @keyframes keycap-wiggle{
+        0%, 100%{
+            transform: translateY(0) rotate(0deg);
+        }
+        30%{
+            transform: translateY(-1px) rotate(-2deg);
+        }
+        65%{
+            transform: translateY(-1px) rotate(2deg);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+        .keycap:hover{
+            animation: none;
+        }
+    }
+
     #start-button{
         font-size: 1rem;
         background-color: var(--main-color);
@@ -359,11 +437,6 @@ hr{
         background-color: var(--button-hover-color);
     }
 
-    .form-error-message{
-        min-height: 1.5rem;
-        color: var(--error-color);
-    }
-    
     /*ゲーム画面*/
     .game-area{
         background-color: var(--base-color);
@@ -720,6 +793,10 @@ hr{
 
     #law-history-empty{
         margin: .25rem 0 .5rem 0;
+    }
+
+    .result-shortcut-bar{
+        margin-top: .1rem;
     }
 
     .result-guide{
