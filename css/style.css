@@ -255,6 +255,14 @@ hr{
         padding: .75rem 0 .75rem 0;
     }
 
+    #start-error-message{
+        display: none;
+        color: var(--error-color);
+        font-weight: bold;
+        margin-top: 0.5rem;
+        min-height: 1.5rem;
+    }
+
     form{
         line-height: 1.75;
         text-align: center;
@@ -429,11 +437,6 @@ hr{
         background-color: var(--button-hover-color);
     }
 
-    .form-error-message{
-        min-height: 1.5rem;
-        color: var(--error-color);
-    }
-    
     /*ゲーム画面*/
     .game-area{
         background-color: var(--base-color);
