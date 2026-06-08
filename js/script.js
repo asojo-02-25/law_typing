@@ -16,6 +16,8 @@ let chunkCommittedRomaji = '';  // 現在文節で確定済みのローマ字
 let typedRomajiByUnit = [];     // 各かなユニットで確定した実入力ローマ字
 let isRomajiGuideEnabled = true; // 未入力ローマ字ガイドの表示設定
 let gameStartTime = 0;          // 開始タイムスタンプ
+let gameTimerIntervalId = null; // プレイ中タイマーの更新ID
+let gameStartTransitionToken = 0; // 開始遷移の世代トークン
 let correctKeyCount = 0;        // 正解タイプ数
 let missedKeyCount = 0;         // ミスタイプ数
 let missedKeysMap = {};         // ミスタイプしたキーを格納するオブジェクト
@@ -435,6 +437,7 @@ const textElement = document.getElementById('question-text');
 const charGuideElement = document.getElementById('current-char-guide');
 const guideElement = document.getElementById('current-guide');
 const inputElement = document.getElementById('user-input');
+const gameTimerElement = document.getElementById('game-timer');
 const fieldElement = document.getElementById('question-field');
 const sourceElement  = document.getElementById('question-source'); 
 const remainingElement = document.getElementById('question-remaining');
@@ -463,6 +466,7 @@ const hasGameScreenDom = Boolean(
     && charGuideElement
     && guideElement
     && inputElement
+    && gameTimerElement
     && fieldElement
     && sourceElement
     && questionArea
@@ -1257,6 +1261,42 @@ const updateRemainingQuestionCount = (forcedValue = null) => {
     remainingElement.textContent = `残り${remaining}問`;
 };
 
+const formatGameTimer = (elapsedSeconds) => {
+    const cappedSeconds = Math.min(Math.max(Math.floor(elapsedSeconds), 0), 99 * 60 + 59);
+    const minutes = Math.floor(cappedSeconds / 60);
+    const seconds = cappedSeconds % 60;
+    return `${String(minutes).padStart(2, '0')} : ${String(seconds).padStart(2, '0')}`;
+};
+
+const updateGameTimerDisplay = () => {
+    if (!gameTimerElement) return;
+
+    const elapsedSeconds = gameStartTime > 0
+        ? (Date.now() - gameStartTime) / 1000
+        : 0;
+    gameTimerElement.textContent = formatGameTimer(elapsedSeconds);
+};
+
+const stopGameTimer = () => {
+    if (gameTimerIntervalId !== null) {
+        clearInterval(gameTimerIntervalId);
+        gameTimerIntervalId = null;
+    }
+};
+
+const resetGameTimer = () => {
+    stopGameTimer();
+    gameStartTime = 0;
+    updateGameTimerDisplay();
+};
+
+const startGameTimer = () => {
+    stopGameTimer();
+    gameStartTime = Date.now();
+    updateGameTimerDisplay();
+    gameTimerIntervalId = setInterval(updateGameTimerDisplay, 250);
+};
+
 // --- ミスタイプしたキーのハイライト ---
 const highlightMissedKey = (char) => {
     // id の取得
@@ -1484,6 +1524,7 @@ const startGame = (config) => {
 
     // staleな結果遷移を必ず無効化
     invalidateResultTransitions();
+    const startTransitionToken = ++gameStartTransitionToken;
 
     // 多重起動を禁止
     if (isGameActive || currentScreen !== SCREEN.START) {
@@ -1492,8 +1533,8 @@ const startGame = (config) => {
 
     // 終了演出(fill: forwards)が残ると初期表示が崩れるため、開始前に強制リセット
     resetGameScreenVisualState(true);
+    resetGameTimer();
 
-    isGameActive = true;        // ゲーム開始フラグ
     guideElement.style.display = 'block';
 
     lastGameSettings = JSON.parse(JSON.stringify(config));  // 直近の設定を保持
@@ -1504,7 +1545,6 @@ const startGame = (config) => {
     missedKeyCount = 0;
     missedKeysMap = {};
     currentRunTypedHistory = [];
-    gameStartTime = Date.now();
     renderLawHistory(getStoredHistoryForDisplay(), 1);
 
     if(keyboardContainer){
@@ -1555,9 +1595,23 @@ const startGame = (config) => {
         fill: 'forwards',
     };
 
+    const startAnimations = [];
     for(const screen of delayScreens){
-        trackAnimation(screen.animate(keyframes, options), `start-delay:${screen.id || 'delay-screen'}`);
+        const animation = trackAnimation(screen.animate(keyframes, options), `start-delay:${screen.id || 'delay-screen'}`);
+        if (animation?.finished) {
+            startAnimations.push(animation.finished);
+        }
     }
+
+    Promise.allSettled(startAnimations).then(() => {
+        if (startTransitionToken !== gameStartTransitionToken || currentScreen !== SCREEN.GAME || questionQueue.length === 0) {
+            return;
+        }
+
+        isGameActive = true;        // ゲーム開始フラグ
+        startGameTimer();
+        updateRemainingQuestionCount();
+    });
 };
 
 // ====================================
@@ -1747,11 +1801,6 @@ const resolvePendingCompletion = (normalizedChar, originalChar) => {
 
 const handleInput = (char) => {
     if (!isGameActive) return;
-
-    // ゲーム開始直後の誤入力を防ぐ (500ms)
-    if (Date.now() - gameStartTime < 500) {
-        return;
-    }
     
     if (!char || typingState.candidates.length === 0) {
         return;
@@ -1904,6 +1953,8 @@ const nextQuestion = () => {
 
 const finishGame = () => {
     updateRemainingQuestionCount(0);
+    updateGameTimerDisplay();
+    stopGameTimer();
     // ゲーム終了フラグ
     isGameActive = false;
     // 終了タイムスタンプ
@@ -1946,18 +1997,15 @@ const finishGame = () => {
     
     // データの保存
     const isSaved = saveToLocalStorage(resultData);
-    if (!message) {
-        startErrorElement.setAttribute('aria-hidden', 'true');
-        startErrorElement.style.display = 'none';
-        startErrorElement.textContent = '';
-        return;
+    if (!isSaved) {
+        console.warn('[ResultStorage] result was not saved because it was treated as an invalid record', resultData);
     }
 
-    // 表示（エラーあり）：まずアクセシビリティツリーに出し、次にテキストを入れて表示する
-    startErrorElement.setAttribute('aria-hidden', 'false');
-    startErrorElement.textContent = message;
-    startErrorElement.style.display = 'block';
-    inputElement.style.display = 'none';
+    charGuideElement.textContent = 'finish!';
+    guideElement.textContent = '';
+    inputElement.style.display = '';
+    inputElement.style.opacity = '1';
+    inputElement.textContent = '';
     document.querySelectorAll('.key.active').forEach((keys) => {
         keys.classList.remove('active');
     });
@@ -2341,6 +2389,7 @@ const showResults = (data) => {
 const resetGame = () => {
 
     // ゲーム状態変数をリセット
+    gameStartTransitionToken++;
     questionQueue = [];         // 実際に出題される問題のリスト
     currentQuestionIndex = 0;   // 今何問目か
     chunkedText = [];           // 日本語を読点で区切ったリスト
@@ -2351,7 +2400,7 @@ const resetGame = () => {
     chunkCommittedRomaji = '';
     typedRomajiByUnit = [];
     isRomajiGuideEnabled = true;
-    gameStartTime = 0;          // 開始タイムスタンプ
+    resetGameTimer();
     correctKeyCount = 0;        // 正解タイプ数
     missedKeyCount = 0;         // ミスタイプ数
     missedKeysMap = {};         // ミスタイプしたキーを格納するオブジェクト
@@ -2377,6 +2426,7 @@ const resetGame = () => {
     guideElement.style.display = 'none';
     inputElement.textContent = '';
     inputElement.style.display = '';
+    updateGameTimerDisplay();
     fieldElement.textContent = '';
     sourceElement.textContent = '';
     keyboardContainer.style.visibility = 'visible';

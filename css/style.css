@@ -458,10 +458,28 @@ hr{
     .question-info{
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
         padding: .375rem 1.75rem 0 1.75rem;
     }
 
-    
+    .question-meta-left{
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        min-width: 0;
+    }
+
+    .question-meta-left p{
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .game-timer{
+        color: var(--main-color);
+        font-weight: bold;
+        font-variant-numeric: tabular-nums;
+    }
 
     /* 分野（左側）：バッジ風のデザイン */
     .info-badge {
