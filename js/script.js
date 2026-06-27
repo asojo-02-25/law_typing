@@ -1294,7 +1294,7 @@ const startGameTimer = () => {
     stopGameTimer();
     gameStartTime = Date.now();
     updateGameTimerDisplay();
-    gameTimerIntervalId = setInterval(updateGameTimerDisplay, 250);
+    gameTimerIntervalId = setInterval(updateGameTimerDisplay, 500);
 };
 
 // --- ミスタイプしたキーのハイライト ---
@@ -2400,13 +2400,13 @@ const resetGame = () => {
     chunkCommittedRomaji = '';
     typedRomajiByUnit = [];
     isRomajiGuideEnabled = true;
-    resetGameTimer();
     correctKeyCount = 0;        // 正解タイプ数
     missedKeyCount = 0;         // ミスタイプ数
     missedKeysMap = {};         // ミスタイプしたキーを格納するオブジェクト
     isGameActive = false;       // ゲーム進行中フラグ
     currentRunTypedHistory = [];
     resetTypingState();
+    resetGameTimer();
 
     // staleな結果遷移を先に無効化
     invalidateResultTransitions();
@@ -2426,7 +2426,6 @@ const resetGame = () => {
     guideElement.style.display = 'none';
     inputElement.textContent = '';
     inputElement.style.display = '';
-    updateGameTimerDisplay();
     fieldElement.textContent = '';
     sourceElement.textContent = '';
     keyboardContainer.style.visibility = 'visible';
