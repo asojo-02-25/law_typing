@@ -106,6 +106,7 @@ CUSTOM_READING_MAP: Dict[str, str] = {
     "復受任者" : "ふくじゅにんしゃ",
     "先取特権" : "さきどりとっけん",
     "資本金" : "しほんきん",
+    "及び数を" : "およびかずを",
 }
 
 CUSTOM_READING_TERMS: Tuple[str, ...] = tuple(sorted(CUSTOM_READING_MAP.keys(), key=len, reverse=True))

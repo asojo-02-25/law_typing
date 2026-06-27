@@ -9,8 +9,8 @@ let questionQueue = [];         // 実際に出題される問題のリスト
 let currentQuestionIndex = 0;   // 今何問目か
 let chunkedText = [];           // 日本語を読点で区切ったリスト
 let chunkedKana = [];           // かな読みを読点で区切ったリスト
-let unitChunkMap = [];          // 各ユニットが属する文節のインデックス
-let currentChunkIndex = 0;      // 今何個目の文節を打っているか
+let unitChunkMap = [];          // 各ユニットがどの文節に属すか示すインデックス
+let currentChunkIndex = 0;      // 現在入力中の文節を示すインデックス
 let inputBuffer = '';           // 現在文節でユーザーが打ち終えたローマ字
 let chunkCommittedRomaji = '';  // 現在文節で確定済みのローマ字
 let typedRomajiByUnit = [];     // 各かなユニットで確定した実入力ローマ字
@@ -272,36 +272,50 @@ const getDefaultRomajiForUnit = (unit) => {
 
 const buildRomajiDisplayHtml = (showGuide) => {
     let html = '';
-    const typedClassName = showGuide ? 'romaji-typed-dimmed' : 'romaji-typed';
+
+    if (!showGuide) {
+        typingState.units.forEach((unit, idx) => {
+            if (unitChunkMap[idx] !== currentChunkIndex) return;
+
+            if (idx < typingState.currentUnitIdx) {
+                html += `<span class="romaji-typed">${escapeHtml(typedRomajiByUnit[idx] || '')}</span>`;
+                return;
+            }
+
+            if (idx === typingState.currentUnitIdx) {
+                html += `<span class="romaji-typed">${escapeHtml(typingState.typedBuffer)}</span>`;
+            }
+        });
+
+        return html;
+    }
 
     typingState.units.forEach((unit, idx) => {
         if (unitChunkMap[idx] !== currentChunkIndex) return;
 
         if (idx < typingState.currentUnitIdx) {
-            const typed = typedRomajiByUnit[idx] || (showGuide ? getDefaultRomajiForUnit(unit) : '');
-            html += `<span class="${typedClassName}">${escapeHtml(typed)}</span>`;
+            const typed = typedRomajiByUnit[idx] || getDefaultRomajiForUnit(unit);
+            html += `<span class="romaji-completed">${escapeHtml(typed)}</span>`;
             return;
         }
 
         if (idx === typingState.currentUnitIdx) {
             const currentTyped = typingState.typedBuffer;
-            html += `<span class="${typedClassName}">${escapeHtml(currentTyped)}</span>`;
+            html += `<span class="romaji-completed">${escapeHtml(currentTyped)}</span>`;
 
-            if (showGuide) {
-                const guideCandidate = typingState.candidates[0] || getDefaultRomajiForUnit(unit);
-                const rest = guideCandidate.startsWith(currentTyped)
-                    ? guideCandidate.slice(currentTyped.length)
-                    : '';
-                html += `<span class="romaji-guide">${escapeHtml(rest)}</span>`;
-                return;
-            }
+            const guideCandidate = typingState.candidates[0] || getDefaultRomajiForUnit(unit);
+            const rest = guideCandidate.startsWith(currentTyped)
+                ? guideCandidate.slice(currentTyped.length)
+                : '';
+            html += `<span class="romaji-uncompleted">${escapeHtml(rest)}</span>`;
+            return;
         }
 
-        if (showGuide) {
-            html += `<span class="romaji-guide">${escapeHtml(getDefaultRomajiForUnit(unit))}</span>`;
+        if (idx > typingState.currentUnitIdx) {
+            html += `<span class="romaji-uncompleted">${escapeHtml(getDefaultRomajiForUnit(unit))}</span>`;
         }
     });
-
+    
     return html;
 };
 

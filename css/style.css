@@ -592,8 +592,12 @@ hr{
         opacity: 1;
     }
 
-    #user-input .romaji-typed-dimmed{
+    #user-input .romaji-completed{
         opacity: .5;
+    }
+
+    #user-input .romaji-uncompleted{
+        opacity: 1;
     }
 
     /*キーボード*/
