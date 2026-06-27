@@ -1302,6 +1302,10 @@ const highlightMissedKey = (char) => {
     // id の取得
     const targetId = keyIdMap[char] || char.toUpperCase();
     const targetElement = document.getElementById(targetId);
+    const missedKeyAnimationOptions = {
+        duration: 200,
+        iterations: 2,
+    };
 
     // keyframs, options の定義 / アニメーションの実行
     if(targetElement){
@@ -1309,11 +1313,16 @@ const highlightMissedKey = (char) => {
             {backgroundColor: 'red', offset: 0},
             {backgroundColor: 'white', offset: 1},
         ];
-        const options = {
-            duration: 200,
-            iterations: 2,
-        }
-        targetElement.animate(keyframes, options);
+        targetElement.animate(keyframes, missedKeyAnimationOptions);
+    }
+
+    if(gameScreen){
+        const gameScreenKeyframes = [
+            {boxShadow: '0 0 0 .75px red, 0 0 .5rem rgba(255, 0, 0, .65)', offset: 0},
+            // {boxShadow: '0 0 0 2px red, 0 0 1.25rem rgba(255, 0, 0, .65)', offset: 0},
+            // {boxShadow: '0 0 .5rem rgba(36, 29, 29, 0.1), 0 0 1.5rem rgba(0,0,0,0.05)', offset: 1},
+        ];
+        gameScreen.animate(gameScreenKeyframes, missedKeyAnimationOptions);
     }
 };
 
